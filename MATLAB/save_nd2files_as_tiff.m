@@ -4,7 +4,7 @@ function save_nd2files_as_tiff(Directory_Name)
 %%file and save images as tiff. Seperately for each stack, if present
 
 % Add Bioformats matlab folder to the path
-addpath(genpath('/media/seetha/Se/Microfluidic Chip_Data/Olfactory-Chip-Scripts/MATLAB/bfmatlab/'))
+addpath(genpath('/Users/seetha/Desktop/Olfactory_Chip_Scripts/MATLAB/bfmatlab/'))
 
 Result_Folder = [Directory_Name, 'Tiff'];
 
@@ -27,7 +27,8 @@ for ff = 1:length(ND2_files)
     stackSizeY = omeMeta.getPixelsSizeY(0).getValue(); % image height, pixels
     stackSizeZ = omeMeta.getPixelsSizeZ(0).getValue(); % number of Z slices
     stackSizeT = omeMeta.getPixelsSizeT(0).getValue(); % number of T slices
-    
+    stackSizeC = omeMeta.getPixelsSizeC(0).getValue(); % number of colorplanes
+
     
     %Access data
     for tt = 1:length(Data{1})
@@ -40,13 +41,21 @@ for ff = 1:length(ND2_files)
         temp1 = strfind(Data{1}{tt,2}, 'T=');
         temp2 = strfind(Data{1}{tt,2}(temp1+2:end), '/');
         StringT = Data{1}{tt,2}(temp1+2:temp1+temp2);
-            
+        
+       
+        temp1 = strfind(Data{1}{tt,2}, 'C=');
+        temp2 = strfind(Data{1}{tt,2}(temp1+2:end), '/');
+        StringC = Data{1}{tt,2}(temp1+2:temp1+temp2);
         
         if isempty(StringZ)
             StringZ = '1';
         end
         
-        disp(['Saving to tiff ...', ND2_files(ff).name(1:end-4), ' Z=', StringZ, ' T=', StringT])
+        if isempty(StringC)
+            StringC = '1';
+        end
+        
+        disp(['Saving to tiff ...', ND2_files(ff).name(1:end-4), ' Z=', StringZ, ' T=', StringT, ' C=', StringC])
         
         image1 = Data{1}{tt,1}; %Get image
         
@@ -60,13 +69,9 @@ for ff = 1:length(ND2_files)
             end
         else
             if strcmp('1',StringT)
-                imwrite(image1,[Result_Folder, filesep,ND2_files(ff).name(1:end-4), '_Z=',StringZ, '.tif'],'tif');
-            else
-                if  tt > length(Data{1})-stackSizeZ
-                    imwrite(image1,[Result_Folder, filesep,ND2_files(ff).name(1:end-4), '_Z=',StringZ, '.tif'],'tif','WriteMode','append');
-                else
-                    imwrite(image1,[Result_Folder, filesep,ND2_files(ff).name(1:end-4), '_Z=',StringZ, '.tif'],'tif','WriteMode','append');
-                end
+                imwrite(image1,[Result_Folder, filesep,ND2_files(ff).name(1:end-4), '_Z=',StringZ, '_C=', StringC, '.tif'],'tif');
+            else               
+                imwrite(image1,[Result_Folder, filesep,ND2_files(ff).name(1:end-4), '_Z=',StringZ, '_C=', StringC, '.tif'],'tif','WriteMode','append');                
             end
         end
     end

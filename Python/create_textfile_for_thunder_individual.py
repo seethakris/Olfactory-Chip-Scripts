@@ -19,32 +19,26 @@ def create_textfile_individual(Exp_Folder, filename_save_prefix, img_size_x, img
     img_size_crop_x, img_size_crop_y, num_time, time_start, time_end, stim_start, stim_end,\
     f_f_flag, dff_start, dff_end):
         
-    filesep = os.path.sep #Get fileseperator according to operating system
-    
-    # To plot as PDF create directory
-    Figure_PDFDirectory = Exp_Folder+filesep+'Figures'+filesep
-    if not os.path.exists(Figure_PDFDirectory):
-        os.makedirs(Figure_PDFDirectory) 
-    pp = PdfPages(Figure_PDFDirectory+filename_save_prefix+'_Data.pdf')
+
     
     zz = 0 #each multitiff file is considered as one stack
     Matfile_for_Thunder = None
     
     #Find tiff files in given experiment folder 
-    onlyfiles = [ f for f in os.listdir(Exp_Folder) if (os.path.isfile(os.path.join(Exp_Folder,f)) and f.find('.tif')>0 and f.find('Registered_Z=')==0)]
+    onlyfiles = [ f for f in os.listdir(Exp_Folder) if (os.path.isfile(os.path.join(Exp_Folder, f)) and f.find('.tif')>0 and f.find('Z=')>=0)]
     
         
-    for lst in xrange(1,np.size(onlyfiles, axis=0)+1): 
-        tif = TIFF.open(os.path.join(Exp_Folder,('Registered_Z='+str(lst)+'.tif')), mode='r') #Open multitiff  
+    for lst in xrange(0,np.size(onlyfiles, axis=0)): 
+        tif = TIFF.open(os.path.join(Exp_Folder,(onlyfiles[lst])), mode='r') #Open multitiff  
         
         zz = zz+1 #Update the number of current z plane to add to text file
         
         # Get image data as a matrix
-        data = get_data_from_tiff(tif, img_size_x, img_size_y, num_time, lst, pp) #get data in matrix form from multitiff
+        data = get_data_from_tiff(tif, img_size_x, img_size_y, num_time, onlyfiles[lst], pp) #get data in matrix form from multitiff
         
         #Get data in thunder format [xx,yy,zz,time]
         temp_matfile_for_thunder = get_matrix_for_textfile(data, img_size_crop_x, img_size_crop_y, \
-        zz, time_start, time_end,f_f_flag, dff_start, dff_end, stim_start,stim_end, lst, pp)
+        zz, time_start, time_end,f_f_flag, dff_start, dff_end, stim_start,stim_end, onlyfiles[lst], pp)
         
         #Append each tiff files data to a bigger matrix
         if Matfile_for_Thunder is None:
@@ -63,10 +57,13 @@ def get_data_from_tiff(tif, img_size_x, img_size_y, num_time, filename, pp):
     data = np.zeros((img_size_x,img_size_y,num_time), dtype=np.uint8)
     ii = 0
     for image in tif.iter_images():
+        if ii >= num_time:
+            break
+        
         #Check if image is of the xy resolution specified, else resize
         if np.size(image,1)!=img_size_y or np.size(image,0)!=img_size_x:
             if ii == 0: #Print that there is a size mismatch
-                print 'Size mismatch..Resizing Z='+ str(filename)
+                print 'Size mismatch..Resizing'+ filename
             temp_image = pil.Image.fromarray(image)    
             data[:,:,ii] = np.array(temp_image.resize((img_size_y, img_size_x), pil.Image.NEAREST))            
             ii = ii+1
@@ -76,7 +73,7 @@ def get_data_from_tiff(tif, img_size_x, img_size_y, num_time, filename, pp):
     #Plot average data over time for reviewingin grayscale      
     with sns.axes_style("white"):
         fig1 = plt.imshow(np.mean(data[:,:,:], axis=2), cmap='gray')
-        plt.title('Z='+str(filename))
+        plt.title(filename)
         plt.axis('off')
         fig1 = plt.gcf()
         pp.savefig(fig1)
@@ -99,8 +96,9 @@ def get_matrix_for_textfile(data, img_size_crop_x, img_size_crop_y, zz, time_sta
     else:
         data1 = data
         
-    print 'Creating array from stack for Z=' + str(filename)
+    print 'Creating array from stack for ' + filename
     temp_matfile_for_thunder = np.zeros([np.size(data1, axis=0)*np.size(data1, axis=1),3+(time_end-time_start+1)+smooth_window-2], dtype=np.int)
+        
     count = 0    
     for yy in xrange(0,np.size(data1, axis=1)):
         for xx in xrange(0,np.size(data1, axis=0)): 
