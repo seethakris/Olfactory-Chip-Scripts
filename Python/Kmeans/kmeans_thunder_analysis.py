@@ -39,12 +39,12 @@ def run_analysis_individualodors(Exp_Folder, filename_save_prefix, kmeans_cluste
             if len(txt_file)>0:
                                 
                 #Load data        
-                data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputFormat='text', nkeys=3)
+                data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputFormat='text', nkeys=3).toTimeSeries().detrend(method='linear', order=8)
                 data_background = tsc.loadSeries(Working_Directory+name_for_saving_files+'.txt', inputFormat='text', nkeys=3)
                 data_background.cache()
                 
                 data_filtered.center()
-                data_filtered.zscore()
+                data_filtered.zscore(10)
                 data_filtered.cache()
                 
                 flag = 0
@@ -64,12 +64,12 @@ def run_analysis_eachodor(Exp_Folder, filename_save_prefix, kmeans_clusters, \
 
         if len(txt_file)>0:
            #Load data                    
-            data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputFormat='text', nkeys=3)
+            data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputFormat='text', nkeys=3).toTimeSeries().detrend(method='linear', order=8)
             data_background = tsc.loadSeries(Working_Directory+name_for_saving_files+'.txt', inputFormat='text', nkeys=3)
             data_background.cache()
             
             data_filtered.center()
-            data_filtered.zscore()
+            data_filtered.zscore(10)
             data_filtered.cache()
                 
             flag = 1
@@ -87,12 +87,12 @@ def run_analysis_allodor(Exp_Folder, filename_save_prefix, kmeans_clusters, \
     
     if len(txt_file)>0:
        #Load data                    
-        data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputFormat='text', nkeys=3)
+        data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputFormat='text', nkeys=3).toTimeSeries().detrend(method='linear', order=8)
         data_background = tsc.loadSeries(Working_Directory+name_for_saving_files+'.txt', inputFormat='text', nkeys=3)
         data_background.cache()
         
         data_filtered.center()
-        data_filtered.zscore()
+        data_filtered.zscore(10)
         data_filtered.cache()
             
         name_for_saving_figures = Working_Directory

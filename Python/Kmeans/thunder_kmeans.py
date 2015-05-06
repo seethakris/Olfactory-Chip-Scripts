@@ -54,7 +54,7 @@ def make_kmeans_maps(data, kmeans_cluster_centers, img_labels, img_sim, img_size
     kmeans_cluster_centers_updated[:,interesting_clusters] = kmeans_cluster_centers.T[:,interesting_clusters]
     
     #Create maps
-    brainmap = Colorize(cmap=newclrs_updated_brewer).transform(img_labels, mask=img_sim, background=reference, mixing=1.0)
+    brainmap = Colorize(cmap=newclrs_updated_brewer).transform(img_labels, mask=img_sim, background=reference, mixing=0.5)
     brainmap_for_finding_pixels = Colorize(cmap=newclrs_updated_rgb).transform(img_labels, mask=img_sim)
 
     #Count number of unique colors in the images

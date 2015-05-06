@@ -12,7 +12,7 @@ Exp_Folder ='/Users/seetha/Desktop/KCTD/Fish14_KCTDHUC_5dpf/Tiff/Cropped/Registe
 filename_save_prefix = 'ThresholdedOB_T81'
 
 #Which files to do kmeans on
-files_to_do_kmeans = [0,1,1] #Individual kmeans, Each_odor kmeans, All_odor kmeans
+files_to_do_kmeans = [1,0,1] #Individual kmeans, Each_odor kmeans, All_odor kmeans
 
 #Use existing parameters from pickle dump -1  or use new paprameters -0?
 use_existing_parameters = 0
@@ -38,7 +38,7 @@ kmeans_clusters_allodor = 12 #Number of kmeans clusters to detect from files
 # Load imput parameters that were saved from creating text file. 
 import pickle
 
-with open(Exp_Folder+filename_save_prefix+'_save_input_variables') as f:
+with open(Exp_Folder+filename_save_prefix +'_save_input_variables') as f:
     img_size_x,img_size_y,img_size_crop_x1, img_size_crop_x2, img_size_crop_y1, img_size_crop_y2,\
     time_start,time_end,stim_start,stim_end,f_f_flag,dff_start,dff_end,stimulus_pulse = pickle.load(f)
     
