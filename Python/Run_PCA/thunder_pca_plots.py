@@ -24,7 +24,7 @@ z_direction = 'y'
 
 def plot_pca_maps(Working_Directory, name_for_saving_figures, name_for_saving_files, \
 pca_components, maps, pts, pts_nonblack, clrs, clrs_nonblack, recon, unique_clrs, matched_pixels,\
-matched_signals, stim_start, stim_end, flag,stimulus_pulse, required_pcs):
+matched_signals,  flag,stimulus_on_time, stimulus_off_time, color_mat, required_pcs):
     
     if required_pcs == 0:
         required_pcs = [1,2,3]
@@ -42,7 +42,7 @@ matched_signals, stim_start, stim_end, flag,stimulus_pulse, required_pcs):
     sns.set_context("talk", font_scale=1.25)
     with sns.axes_style("darkgrid"):
         ax1 = plt.subplot(221)
-        plot_pca_components(pca_components,ax1,stim_start, stim_end,stimulus_pulse,required_pcs)
+        plot_pca_components(pca_components,ax1,stimulus_on_time, stimulus_off_time,required_pcs)
 
         
     
@@ -50,7 +50,7 @@ matched_signals, stim_start, stim_end, flag,stimulus_pulse, required_pcs):
     with sns.axes_style("darkgrid"):
         for ii in range(0,np.size(unique_clrs,0)):       
             fig2 = plt.subplot(223)
-            plot_scores(matched_signals, unique_clrs, ii, stim_start, stim_end,stimulus_pulse)
+            plot_scores(matched_signals, unique_clrs, ii, stimulus_on_time, stimulus_off_time)
             
     ########### Plot Boxplot of number of pixels ##################        
     with sns.axes_style("white"):
@@ -82,17 +82,17 @@ matched_signals, stim_start, stim_end, flag,stimulus_pulse, required_pcs):
         ### Plot PCA projections in 3D
         ax2 = fig3.add_subplot(131, projection='3d')
         if np.size(required_pcs)<3:
-            plot_pca_components_in3d(pca_components,ax2,stim_start, stim_end,stimulus_pulse,[1,2,3],z_direction)
+            plot_pca_components_in3d(pca_components,ax2,stimulus_on_time, stimulus_off_time, color_mat,[1,2,3],z_direction)
         else:
-            plot_pca_components_in3d(pca_components,ax2,stim_start, stim_end,stimulus_pulse,required_pcs,z_direction)
+            plot_pca_components_in3d(pca_components,ax2,stimulus_on_time, stimulus_off_time, color_mat,required_pcs,z_direction)
         
         ## Plot projections in 2D
         ax2 = plt.subplot(132)
         if np.size(required_pcs)==3:
-            plot_pca_components_in2d(pca_components,ax2,stim_start, stim_end,stimulus_pulse,[1,2])
+            plot_pca_components_in2d(pca_components,ax2,stimulus_on_time, stimulus_off_time, color_mat,[1,2])
         else:
             print required_pcs
-            plot_pca_components_in2d(pca_components,ax2,stim_start, stim_end,stimulus_pulse, required_pcs)
+            plot_pca_components_in2d(pca_components,ax2,stimulus_on_time, stimulus_off_time, color_mat, required_pcs)
        
         ### Plot scatter plots in 3D
         ax2 = plt.subplot(133, projection='3d')
@@ -356,7 +356,7 @@ def plot_colormaps_all_z_plane_wise(maps, Working_Directory, pp, matched_pixels,
         
         
     
-def plot_pca_components(pca_components,ax1,stim_start, stim_end,stimulus_pulse,required_pcs):
+def plot_pca_components(pca_components,ax1,stimulus_on_time, stimulus_off_time,required_pcs):
 ########### Plot components ##################    
     for ii in range(np.size(pca_components,1)):
         if ii in required_pcs:
@@ -373,28 +373,23 @@ def plot_pca_components(pca_components,ax1,stim_start, stim_end,stimulus_pulse,r
         
     ax1.legend(A, loc=4)
     plt.axhline(y=0, linestyle='-', color='k', linewidth=1)
-    plot_vertical_lines(stim_start, stim_end,stimulus_pulse)
+    plot_vertical_lines_onset(stimulus_on_time)
+    plot_vertical_lines_offset(stimulus_off_time)
         
-def plot_pca_components_in3d(pca_components,ax1,stim_start, stim_end,stimulus_pulse,required_pcs,z_direction):
-    
-    ########### Plot components in 3D ##################  
-    
-    ax1.plot(pca_components[:,required_pcs[0]], pca_components[:,required_pcs[1]], pca_components[:,required_pcs[2]], zdir= z_direction, linewidth=2)
-    ax1.hold(True)
+def plot_pca_components_in3d(pca_components,ax1,stimulus_on_time, stimulus_off_time, color_mat,required_pcs,z_direction):
 
-    plot_stimulus_in_3d(ax1, pca_components, stim_start,stim_end,stimulus_pulse,required_pcs)
-    
+    ########### Plot components in 3D ##################  
+    plot_stimulus_in_3d(ax1, pca_components, stimulus_on_time, stimulus_off_time, color_mat,required_pcs,z_direction)    
     ## plot axis labels according to zdirection
     plot_axis_labels_byzdir(ax1,z_direction,required_pcs)
     
 
     
-def plot_pca_components_in2d(pca_components,ax1,stim_start, stim_end,stimulus_pulse, required_pcs):
-    ########### Plot components in 3D ##################  
-    ax1.plot(pca_components[:,required_pcs[0]], pca_components[:,required_pcs[1]], linewidth=2)
-    ax1.hold(True)
-    plot_stimulus_in_2d(ax1, pca_components, stim_start,stim_end,stimulus_pulse,required_pcs)
+def plot_pca_components_in2d(pca_components,ax1, stimulus_on_time, stimulus_off_time, color_mat, required_pcs):
+    ########### Plot components in 2D ##################  
     
+    plot_stimulus_in_2d(ax1, pca_components, stimulus_on_time, stimulus_off_time, color_mat,required_pcs)    
+    legend_for_2d_plot(ax1, stimulus_off_time)    
     ax1.set_xlabel('PC'+str(required_pcs[0]))
     ax1.set_ylabel('PC'+str(required_pcs[1]))
         
@@ -406,19 +401,19 @@ def plot_scatter_in_3d(ax1, pts, clrs, required_pcs):
     plot_axis_labels_byzdir(ax1,z_direction,required_pcs)
 
 def plot_scatter_in_2d(ax1, pts, clrs, required_pcs):
-    ax1.scatter(pts[:,required_pcs[0]],pts[:,required_pcs[1]], c=clrs, marker='o', s=100, alpha=.75)    
-    
+    ax1.scatter(pts[:,required_pcs[0]],pts[:,required_pcs[1]], c=clrs, marker='o', s=100, alpha=.75)        
     ## plot axis labels according to zdirection
     ax1.set_xlabel('PC'+str(required_pcs[0]))
     ax1.set_ylabel('PC'+str(required_pcs[1]))
     
 
-def plot_scores(matched_signals, unique_clrs, ind, stim_start, stim_end,stimulus_pulse):
+def plot_scores(matched_signals, unique_clrs, ind, stimulus_on_time, stimulus_off_time):
 ######Plot mean signals according to color and boxplot of number of pixels in each plane
     sns.tsplot(np.array(matched_signals[ind].clr_grped_signal), linewidth=3, ci=95, err_style="ci_band", color=unique_clrs[ind])  
     plt.locator_params(axis = 'y', nbins = 4)            
     sns.axlabel("Time (seconds)","a.u")            
-    plot_vertical_lines(stim_start,stim_end,stimulus_pulse)
+    plot_vertical_lines_onset(stimulus_on_time)
+    plot_vertical_lines_offset(stimulus_off_time)
     plt.axhline(y=0, linestyle='-', color='k', linewidth=1)
     
     
@@ -470,158 +465,86 @@ def plot_axis_labels_byzdir(ax1,z_direction,required_pcs):
     ax1.locator_params(axis = 'y', pad=50)
     ax1.locator_params(axis = 'z',  pad=50)
     
-def plot_vertical_lines(stim_start,stim_end,stimulus_pulse):
-     
-    if stimulus_pulse == 2:
-        plt.axvline(x=stim_start, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end, linestyle='--', color='k', linewidth=1)
-        plt.axvline(x=stim_start+18, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end+18, linestyle='--', color='k', linewidth=1)
-        plt.axvline(x=stim_start+37, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end+37, linestyle='--', color='k', linewidth=1)
-        plt.axvline(x=stim_start+56, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end+56, linestyle='--', color='k', linewidth=1)
-        plt.axvline(x=stim_start+74, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end+74, linestyle='--', color='k', linewidth=1)
-        plt.axvline(x=stim_start+93, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end+93, linestyle='--', color='k', linewidth=1)
-    
-    elif stimulus_pulse == 1:
-        
-        plt.axvline(x=stim_start, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end, linestyle='--', color='k', linewidth=1)
-        plt.axvline(x=stim_start+19, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end+19, linestyle='--', color='k', linewidth=1)
-        plt.axvline(x=stim_start+39, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end+39, linestyle='--', color='k', linewidth=1)
-        plt.axvline(x=stim_start+58, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end+58, linestyle='--', color='k', linewidth=1)
+def plot_vertical_lines_onset(stimulus_on_time):
+    for ii in xrange(0,np.size(stimulus_on_time)):
+        plt.axvline(x=stimulus_on_time[ii], linestyle='-', color='k', linewidth=1)
 
-    else:
-        plt.axvline(x=stim_start, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end, linestyle='--', color='k', linewidth=1)
+def plot_vertical_lines_offset(stimulus_off_time):
+    for ii in xrange(0,np.size(stimulus_off_time)):
+        plt.axvline(x=stimulus_off_time[ii], linestyle='--', color='k', linewidth=1)
+                
     
+def plot_stimulus_in_3d(ax1, pca_components, stimulus_on_time, stimulus_off_time, color_mat, required_pcs,z_direction):
+    
+    ## Plot Baseline at beginning
+    ax1.plot(pca_components[0:stimulus_on_time[0]+1,required_pcs[0]], \
+    pca_components[0:stimulus_on_time[0]+1,required_pcs[1]],\
+    pca_components[0:stimulus_on_time[0]+1,required_pcs[2]],  zdir=z_direction,color='#808080', linewidth=3)
+    
+    print np.shape(pca_components)
+    print stimulus_off_time, stimulus_on_time
+    #Plot light on times
+    for ii in xrange(0,np.size(stimulus_on_time)):
+        ax1.plot(pca_components[stimulus_on_time[ii]:stimulus_off_time[ii]+1,required_pcs[0]], \
+        pca_components[stimulus_on_time[ii]:stimulus_off_time[ii]+1,required_pcs[1]],\
+        pca_components[stimulus_on_time[ii]:stimulus_off_time[ii]+1,required_pcs[2]],  zdir=z_direction,color=color_mat[ii], linewidth=3)
+    
+    #Plot light off times
+    for ii in xrange(0,np.size(stimulus_on_time)):
         
-    
+        if ii == np.size(stimulus_on_time)-1:
+#            print ii
+            ax1.plot(pca_components[stimulus_off_time[ii]:stimulus_off_time[ii]+7,required_pcs[0]], \
+            pca_components[stimulus_off_time[ii]:stimulus_off_time[ii]+7,required_pcs[1]],\
+            pca_components[stimulus_off_time[ii]:stimulus_off_time[ii]+7,required_pcs[2]],  zdir=z_direction,color=color_mat[ii], linewidth=2, linestyle='--')
+        else:
 
-def plot_stimulus_in_3d(ax1, pca_components, stim_start,stim_end,stimulus_pulse,required_pcs):
+            ax1.plot(pca_components[stimulus_off_time[ii]:stimulus_on_time[ii+1]+1,required_pcs[0]], \
+            pca_components[stimulus_off_time[ii]:stimulus_on_time[ii+1]+1,required_pcs[1]],\
+            pca_components[stimulus_off_time[ii]:stimulus_on_time[ii+1]+1,required_pcs[2]],  zdir=z_direction,color=color_mat[ii], linewidth=2, linestyle='--')
     
-    if stimulus_pulse == 2:
-        
-        ax1.plot(pca_components[0:10,required_pcs[0]], \
-        pca_components[0:10,required_pcs[1]],\
-        pca_components[0:10,required_pcs[2]],  zdir='y',color='#808080', linewidth=3)
-        
-        ax1.plot(pca_components[stim_start:stim_end,required_pcs[0]], \
-        pca_components[stim_start:stim_end,required_pcs[1]],\
-        pca_components[stim_start:stim_end,required_pcs[2]],  zdir='y',color='#FF0000', linewidth=5)
-        
-        ax1.plot(pca_components[stim_start+18:stim_end+18,required_pcs[0]], \
-        pca_components[stim_start+18:stim_end+18,required_pcs[1]],\
-        pca_components[stim_start+18:stim_end+18,required_pcs[2]],  zdir='y',color='#FFD700', linewidth=5)
-        
-        ax1.plot(pca_components[stim_start+37:stim_end+37,required_pcs[0]], \
-        pca_components[stim_start+37:stim_end+37,required_pcs[1]],\
-        pca_components[stim_start+37:stim_end+37,required_pcs[2]],  zdir='y',color='#8B008B', linewidth=5)
-        
-        ax1.plot(pca_components[stim_start+56:stim_end+56,required_pcs[0]], \
-        pca_components[stim_start+56:stim_end+56,required_pcs[1]],\
-        pca_components[stim_start+56:stim_end+56,required_pcs[2]],  zdir='y',color='#FF1493', linewidth=5)
-        
-        ax1.plot(pca_components[stim_start+74:stim_end+74,required_pcs[0]], \
-        pca_components[stim_start+74:stim_end+74,required_pcs[1]],\
-        pca_components[stim_start+74:stim_end+74,required_pcs[2]],  zdir='y',color='#DAA520', linewidth=5)
-        
-        ax1.plot(pca_components[stim_start+93:stim_end+93,required_pcs[0]], \
-        pca_components[stim_start+93:stim_end+93,required_pcs[1]],\
-        pca_components[stim_start+93:stim_end+93,required_pcs[2]],  zdir='y',color='#006400', linewidth=5)
-        
-        ax1.plot(pca_components[108:129,required_pcs[0]], \
-        pca_components[108:129,required_pcs[1]],\
-        pca_components[108:129,required_pcs[2]],  zdir='y',color='#000000', linewidth=3)
-        
-    elif stimulus_pulse == 1:
-        
-        ax1.plot(pca_components[0:10,required_pcs[0]], \
-        pca_components[0:10,required_pcs[1]],\
-        pca_components[0:10,required_pcs[2]],  zdir='y',color='#808080', linewidth=3)
-        
-        ax1.plot(pca_components[stim_start:stim_end,required_pcs[0]], \
-        pca_components[stim_start:stim_end,required_pcs[1]],\
-        pca_components[stim_start:stim_end,required_pcs[2]],  zdir='y',color='#FF0000', linewidth=5)
-        
-        ax1.plot(pca_components[stim_start+19:stim_end+19,required_pcs[0]], \
-        pca_components[stim_start+19:stim_end+19,required_pcs[1]],\
-        pca_components[stim_start+19:stim_end+19,required_pcs[2]],  zdir='y',color='#FFD700', linewidth=5)
-        
-        ax1.plot(pca_components[stim_start+39:stim_end+39,required_pcs[0]], \
-        pca_components[stim_start+39:stim_end+39,required_pcs[1]],\
-        pca_components[stim_start+39:stim_end+39,required_pcs[2]],  zdir='y',color='#DAA520', linewidth=5)
-        
-        ax1.plot(pca_components[stim_start+58:stim_end+58,required_pcs[0]], \
-        pca_components[stim_start+58:stim_end+58,required_pcs[1]],\
-        pca_components[stim_start+58:stim_end+58,required_pcs[2]],  zdir='y',color='#006400', linewidth=5)
+    ## Plot Baseline at end of stimulus
+    ax1.plot(pca_components[stimulus_off_time[ii]+6:,required_pcs[0]], \
+    pca_components[stimulus_off_time[ii]+6:,required_pcs[1]],\
+    pca_components[stimulus_off_time[ii]+6:,required_pcs[2]],  zdir=z_direction,color='#000000', linewidth=3)
 
-        ax1.plot(pca_components[75:81,required_pcs[0]], \
-        pca_components[75:81,required_pcs[1]],\
-        pca_components[75:81,required_pcs[2]],  zdir='y',color='#000000', linewidth=3)
         
-def plot_stimulus_in_2d(ax1, pca_components, stim_start,stim_end,stimulus_pulse,required_pcs):
     
-    if stimulus_pulse == 2:
-        ax1.plot(pca_components[0:10,required_pcs[0]], \
-        pca_components[0:10,required_pcs[1]],\
-        color='#808080', linewidth=3)
+def plot_stimulus_in_2d(ax1, pca_components, stimulus_on_time, stimulus_off_time, color_mat, required_pcs):
+    
+    ## Plot Baseline
+    ax1.plot(pca_components[0:stimulus_on_time[0]+1,required_pcs[0]], \
+    pca_components[0:stimulus_on_time[0]+1,required_pcs[1]],\
+    color='#808080', linewidth=3)
         
-        ax1.plot(pca_components[stim_start:stim_end,required_pcs[0]], \
-        pca_components[stim_start:stim_end,required_pcs[1]],\
-        color='#FF0000', linewidth=5)
+    for ii in xrange(0,np.size(stimulus_on_time)):
+        ax1.plot(pca_components[stimulus_on_time[ii]:stimulus_off_time[ii]+1,required_pcs[0]], \
+        pca_components[stimulus_on_time[ii]:stimulus_off_time[ii]+1,required_pcs[1]],\
+        color=color_mat[ii], linewidth=3)
+    
+    ## Plot Baseline
+    ax1.plot(pca_components[stimulus_off_time[ii]+6:,required_pcs[0]], \
+    pca_components[stimulus_off_time[ii]+6:,required_pcs[1]],\
+    color='#000000', linewidth=3)
+    
+    for ii in xrange(0,np.size(stimulus_on_time)):
+        if ii == np.size(stimulus_on_time)-1:
+            ax1.plot(pca_components[stimulus_off_time[ii]:stimulus_off_time[ii]+7,required_pcs[0]], \
+            pca_components[stimulus_off_time[ii]:stimulus_off_time[ii]+7,required_pcs[1]],\
+            color=color_mat[ii], linewidth=2, linestyle='--')
+        else:
+            ax1.plot(pca_components[stimulus_off_time[ii]:stimulus_on_time[ii+1]+1,required_pcs[0]], \
+            pca_components[stimulus_off_time[ii]:stimulus_on_time[ii+1]+1,required_pcs[1]],\
+            color=color_mat[ii], linewidth=2, linestyle='--')
+    
         
-        ax1.plot(pca_components[stim_start+18:stim_end+18,required_pcs[0]], \
-        pca_components[stim_start+18:stim_end+18,required_pcs[1]],\
-        color='#FFD700', linewidth=5)
-        
-        ax1.plot(pca_components[stim_start+37:stim_end+37,required_pcs[0]], \
-        pca_components[stim_start+37:stim_end+37,required_pcs[1]],\
-        color='#8B008B', linewidth=5)
-        
-        ax1.plot(pca_components[stim_start+56:stim_end+56,required_pcs[0]], \
-        pca_components[stim_start+56:stim_end+56,required_pcs[1]],\
-        color='#FF1493', linewidth=5)
-        
-        ax1.plot(pca_components[stim_start+75:stim_end+75,required_pcs[0]], \
-        pca_components[stim_start+75:stim_end+75,required_pcs[1]],\
-        color='#DAA520', linewidth=5)
-        
-        ax1.plot(pca_components[stim_start+94:stim_end+94,required_pcs[0]], \
-        pca_components[stim_start+94:stim_end+94,required_pcs[1]],\
-        color='#006400', linewidth=5)
-        
-        ax1.plot(pca_components[108:129,required_pcs[0]], \
-        pca_components[108:129,required_pcs[1]],\
-        color='#000000', linewidth=3)
-        
-    elif stimulus_pulse == 1:
-        ax1.plot(pca_components[0:10,required_pcs[0]], \
-        pca_components[0:10,required_pcs[1]],\
-        color='#808080', linewidth=3)
-        
-        ax1.plot(pca_components[stim_start:stim_end,required_pcs[0]], \
-        pca_components[stim_start:stim_end,required_pcs[1]],\
-        color='#FF0000', linewidth=5)
-        
-        ax1.plot(pca_components[stim_start+19:stim_end+19,required_pcs[0]], \
-        pca_components[stim_start+19:stim_end+19,required_pcs[1]],\
-        color='#FFD700', linewidth=5)
-        
-        ax1.plot(pca_components[stim_start+39:stim_end+39,required_pcs[0]], \
-        pca_components[stim_start+39:stim_end+39,required_pcs[1]],\
-        color='#DAA520', linewidth=5)
-        
-        ax1.plot(pca_components[stim_start+58:stim_end+58,required_pcs[0]], \
-        pca_components[stim_start+58:stim_end+58,required_pcs[1]],\
-        color='#006400', linewidth=5)
-
-        ax1.plot(pca_components[75:81,required_pcs[0]], \
-        pca_components[75:81,required_pcs[1]],\
-        color='#000000', linewidth=3)
+    
+def legend_for_2d_plot(ax1, stimulus_off_time):
+    A = []
+    A.append( 'Start')
+    for ii in xrange(0,np.size(stimulus_off_time)):
+        A.append(str(ii))
+    A.append('End')
+    
+    
+    ax1.legend(A, loc='upper center', bbox_to_anchor=(0.5, 1.05), ncol=3, fancybox=True)
