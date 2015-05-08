@@ -18,7 +18,7 @@ from libtiff import TIFF
 
 
 def plot_kmeans_maps(Working_Directory, name_for_saving_figures, name_for_saving_files, \
-    kmeans_clusters, img_sim, img_labels, brainmap, unique_clrs, newclrs_rgb, newclrs_brewer, matched_pixels, stim_start, stim_end, flag,stimulus_pulse):
+    kmeans_clusters, img_sim, img_labels, brainmap, unique_clrs, newclrs_rgb, newclrs_brewer, matched_pixels, stimulus_on_time, stimulus_off_time, flag):
     
      
     # To save as pdf create file
@@ -34,11 +34,11 @@ def plot_kmeans_maps(Working_Directory, name_for_saving_figures, name_for_saving
     sns.set_context("talk", font_scale=1.25)
     with sns.axes_style("darkgrid"):
         ax1 = plt.subplot(221)
-        plot_kmeans_components(kmeans_clusters,newclrs_rgb.colors,ax1,stim_start, stim_end,stimulus_pulse)
+        plot_kmeans_components(kmeans_clusters,newclrs_rgb.colors,ax1,stimulus_on_time, stimulus_off_time)
         
     with sns.axes_style("darkgrid"):
         ax1 = plt.subplot(223)
-        plot_kmeans_components(kmeans_clusters,newclrs_brewer.colors,ax1,stim_start, stim_end,stimulus_pulse)
+        plot_kmeans_components(kmeans_clusters,newclrs_brewer.colors,ax1,stimulus_on_time, stimulus_off_time)
             
     ########### Plot Boxplot of number of pixels ##################        
     with sns.axes_style("white"):
@@ -307,7 +307,7 @@ def plot_colormaps_all_z_plane_wise(maps, Working_Directory, pp, matched_pixels,
                 plt.close()
         
     
-def plot_kmeans_components(kmeans_clusters, clrs, ax1,stim_start, stim_end,stimulus_pulse):
+def plot_kmeans_components(kmeans_clusters, clrs, ax1,stimulus_on_time, stimulus_off_time):
 ########### Plot components ##################    
     plt.gca().set_color_cycle(clrs)    
     plt.plot(kmeans_clusters[:,:])
@@ -316,7 +316,8 @@ def plot_kmeans_components(kmeans_clusters, clrs, ax1,stim_start, stim_end,stimu
     
 #    plt.ylim((-1, 1))
     plt.axhline(y=0, linestyle='-', color='k', linewidth=1)
-    plot_vertical_lines(stim_start, stim_end,stimulus_pulse)
+    plot_vertical_lines_onset(stimulus_on_time)
+    plot_vertical_lines_offset(stimulus_off_time)
         
 
 def plot_boxplot(fig2, matched_pixels, unique_clrs):
@@ -339,36 +340,12 @@ def plot_boxplot(fig2, matched_pixels, unique_clrs):
     sns.despine(offset=10, trim=True);  
     return fig2
     
-def plot_vertical_lines(stim_start,stim_end,stimulus_pulse):
-     
-    if stimulus_pulse == 2:
-        
-        plt.axvline(x=stim_start, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end, linestyle='--', color='k', linewidth=1)
-        plt.axvline(x=stim_start+19, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end+19, linestyle='--', color='k', linewidth=1)
-        plt.axvline(x=stim_start+38, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end+38, linestyle='--', color='k', linewidth=1)
-        plt.axvline(x=stim_start+57, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end+57, linestyle='--', color='k', linewidth=1)
-        plt.axvline(x=stim_start+76, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end+76, linestyle='--', color='k', linewidth=1)
-        plt.axvline(x=stim_start+95, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end+95, linestyle='--', color='k', linewidth=1)
-    
-    elif stimulus_pulse == 1:
-        
-        plt.axvline(x=stim_start, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end, linestyle='--', color='k', linewidth=1)
-        plt.axvline(x=stim_start+19, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end+19, linestyle='--', color='k', linewidth=1)
-        plt.axvline(x=stim_start+38, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end+38, linestyle='--', color='k', linewidth=1)
-        plt.axvline(x=stim_start+57, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end+57, linestyle='--', color='k', linewidth=1)
+def plot_vertical_lines_onset(stimulus_on_time):
+    for ii in xrange(0,np.size(stimulus_on_time)):
+        plt.axvline(x=stimulus_on_time[ii], linestyle='-', color='k', linewidth=1)
 
-    else:
-        plt.axvline(x=stim_start, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end, linestyle='--', color='k', linewidth=1)
+def plot_vertical_lines_offset(stimulus_off_time):
+    for ii in xrange(0,np.size(stimulus_off_time)):
+        plt.axvline(x=stimulus_off_time[ii], linestyle='--', color='k', linewidth=1)
     
         

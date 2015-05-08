@@ -16,11 +16,11 @@ from copy import copy
 def run_kmeans(data,kmeans_clusters):
     
     ## Find threshold for filtering by finding the standard deviation
-    std_map = data.seriesStdev().pack()
+#    std_map = data.seriesStdev().pack()
 #    max_map = data.seriesMax().pack()
 
-    filtered = data.filterOnValues(lambda x: np.std(x) > np.mean(std_map[1:10,1:10,:])+0.1)
-    model = KMeans(k=kmeans_clusters).fit(filtered)
+#    filtered = data.filterOnValues(lambda x: np.std(x) > np.mean(std_map[1:10,1:10,:])+0.1)
+    model = KMeans(k=kmeans_clusters).fit(data)
     
     #Kmean labels 
     img_labels = model.predict(data).pack()
@@ -29,7 +29,7 @@ def run_kmeans(data,kmeans_clusters):
     sim = model.similarity(data)
     img_sim = sim.pack()
         
-    return model, img_sim, img_labels, std_map
+    return model, img_sim, img_labels
     
 #Make maps and scatter plots of the pca scores with colormaps for plotting 
 def make_kmeans_maps(data, kmeans_cluster_centers, img_labels, img_sim, img_size_x, img_size_y):
@@ -37,9 +37,10 @@ def make_kmeans_maps(data, kmeans_cluster_centers, img_labels, img_sim, img_size
     reference = data.seriesMean().pack()
     
     #Only plot those clusters where the standard deviation is greater than 0.1 - thus getting rid of noisy clusters
-    interesting_clusters = np.array(np.where(np.logical_and(np.std(kmeans_cluster_centers.T,0)>4,\
-    np.max(kmeans_cluster_centers.T,0)>20)))
+    interesting_clusters = np.array(np.where(np.logical_and(np.std(kmeans_cluster_centers.T,0)>0.0001,\
+    np.max(kmeans_cluster_centers.T,0)>0.00001)))
 
+    
     newclrs_rgb, newclrs_brewer = Colorize.optimize(kmeans_cluster_centers.T.T, asCmap=True)
     
     #Brewer colors
@@ -54,7 +55,7 @@ def make_kmeans_maps(data, kmeans_cluster_centers, img_labels, img_sim, img_size
     kmeans_cluster_centers_updated[:,interesting_clusters] = kmeans_cluster_centers.T[:,interesting_clusters]
     
     #Create maps
-    brainmap = Colorize(cmap=newclrs_updated_brewer).transform(img_labels, mask=img_sim, background=reference, mixing=0.5)
+    brainmap = Colorize(cmap=newclrs_updated_brewer).transform(img_labels, mask=img_sim, background=reference, mixing=1.0)
     brainmap_for_finding_pixels = Colorize(cmap=newclrs_updated_rgb).transform(img_labels, mask=img_sim)
 
     #Count number of unique colors in the images

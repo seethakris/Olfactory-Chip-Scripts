@@ -9,10 +9,11 @@ Created on Mon Jan 26 17:07:18 2015
 
 ## Enter Main Folder containing stimulus folders to create text files
 Exp_Folder ='/Users/seetha/Desktop/KCTD/Fish14_KCTDHUC_5dpf/Tiff/Cropped/Registered/Thresholded_OB/Registered_Stimulus/'
+filename_save_prefix_forkmeanswithPCA = 'ThresholdedOB_1and2PC_T81'
 filename_save_prefix = 'ThresholdedOB_T81'
 
 #Which files to do kmeans on
-files_to_do_kmeans = [1,0,1] #Individual kmeans, Each_odor kmeans, All_odor kmeans
+files_to_do_kmeans = [0,0,1] #Individual kmeans, Each_odor kmeans, All_odor kmeans
 
 #Use existing parameters from pickle dump -1  or use new paprameters -0?
 use_existing_parameters = 0
@@ -29,7 +30,7 @@ kmeans_clusters_eachodor = 12 #Number of kmeans clusters  to detect from files
 
 
 #kmeans parameters for all odor kmeans
-kmeans_clusters_allodor = 12 #Number of kmeans clusters to detect from files
+kmeans_clusters_allodor = 5 #Number of kmeans clusters to detect from files
 
 
 ######################################################################
@@ -40,12 +41,20 @@ import pickle
 
 with open(Exp_Folder+filename_save_prefix +'_save_input_variables') as f:
     img_size_x,img_size_y,img_size_crop_x1, img_size_crop_x2, img_size_crop_y1, img_size_crop_y2,\
-    time_start,time_end,stim_start,stim_end,f_f_flag,dff_start,dff_end,stimulus_pulse = pickle.load(f)
+    time_start,time_end,stimulus_pulse, stimulus_on_time, stimulus_off_time = pickle.load(f)
     
 #Stimulus on and off time
-stimulus_pulse = 1 ##Whether a single pulse or a train of pulses were given
-stim_start = 10 #Stimulus Starting time point
-stim_end = 14 #Stimulus Ending time point
+stimulus_pulse = 1
+if stimulus_pulse == 1:
+    stimulus_on_time = [10,30,49,68]
+    stimulus_off_time = [14,34,53,72]
+    color_mat = ['#00FFFF','#0000A0','#800080','#FF00FF']
+
+    
+elif stimulus_pulse == 2:
+    stimulus_on_time = [10,29,48,67,86,105]
+    stimulus_off_time = [13,32,51,70,89,108]
+    color_mat = ['#00FFFF','#0000A0','#800080','#FF00FF', '#800000','#A52A2A']
 
     
 if use_existing_parameters == 1:
@@ -64,16 +73,16 @@ print 'Starting Thunder Now. Check console for details'
 tsc = ThunderContext.start(appName="thunderkmeans")
 
 if files_to_do_kmeans[0]== 1:
-    run_analysis_individualodors(Exp_Folder, filename_save_prefix, kmeans_clusters_ind,\
-    stim_start-time_start, stim_end-time_start, tsc,redo_kmeans,stimulus_pulse)
+    run_analysis_individualodors(Exp_Folder, filename_save_prefix, filename_save_prefix_forkmeanswithPCA, kmeans_clusters_ind,\
+    stimulus_on_time, stimulus_off_time, tsc,redo_kmeans)
     
 if files_to_do_kmeans[1]== 1:
-    run_analysis_eachodor(Exp_Folder, filename_save_prefix, kmeans_clusters_eachodor, \
-    stim_start-time_start, stim_end-time_start, tsc,redo_kmeans,stimulus_pulse)
+    run_analysis_eachodor(Exp_Folder, filename_save_prefix, filename_save_prefix_forkmeanswithPCA, kmeans_clusters_eachodor, \
+    stimulus_on_time, stimulus_off_time, tsc,redo_kmeans)
 
 if files_to_do_kmeans[2]== 1:
-    run_analysis_allodor(Exp_Folder, filename_save_prefix, kmeans_clusters_allodor, \
-    stim_start-time_start, stim_end-time_start, tsc,redo_kmeans,stimulus_pulse)
+    run_analysis_allodor(Exp_Folder, filename_save_prefix, filename_save_prefix_forkmeanswithPCA, kmeans_clusters_allodor, \
+    stimulus_on_time, stimulus_off_time, tsc,redo_kmeans)
     
 ############# Save all imput parameters
 with open(Exp_Folder+filename_save_prefix+'_save_kmeans_variables', 'w') as f:

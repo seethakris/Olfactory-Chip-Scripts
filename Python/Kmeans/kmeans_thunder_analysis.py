@@ -17,8 +17,8 @@ from thunder_kmeans_plots import plot_kmeans_maps
 
 
 ## kmeans on individual odors
-def run_analysis_individualodors(Exp_Folder, filename_save_prefix, kmeans_clusters, \
-    stim_start, stim_end, tsc, redo_kmeans, stimulus_pulse):
+def run_analysis_individualodors(Exp_Folder, filename_save_prefix, filename_save_prefix_forkmeanswithPCA, kmeans_clusters, \
+    stimulus_on_time, stimulus_off_time, tsc, redo_kmeans):
 
 
     Stimulus_Directories = [f for f in os.listdir(Exp_Folder) if os.path.isdir(os.path.join(Exp_Folder, f)) and f.find('Figures')<0]
@@ -36,10 +36,14 @@ def run_analysis_individualodors(Exp_Folder, filename_save_prefix, kmeans_cluste
             name_for_saving_files = Stimulus_Directories[ii] + '_' + Trial_Directories[jj] + filename_save_prefix+'_individualtrial'
             txt_file = [f for f in os.listdir(Working_Directory) if (f.find(name_for_saving_files+'.txt')==0)]    
             
-            if len(txt_file)>0:
-                                
+            if len(txt_file)>0:                                
                 #Load data        
-                data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputFormat='text', nkeys=3).toTimeSeries().detrend(method='linear', order=8)
+                if filename_save_prefix_forkmeanswithPCA == filename_save_prefix:
+                    data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputFormat='text', nkeys=3).toTimeSeries().detrend(method='linear', order=8)
+                else:
+                    name_for_saving_files_kmeans = Stimulus_Directories[ii] + '_' + Trial_Directories[jj] + filename_save_prefix_forkmeanswithPCA+'_individualtrial'
+                    data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files_kmeans+'_pca_recon.txt', inputFormat='text', nkeys=3)
+
                 data_background = tsc.loadSeries(Working_Directory+name_for_saving_files+'.txt', inputFormat='text', nkeys=3)
                 data_background.cache()
                 
@@ -48,12 +52,12 @@ def run_analysis_individualodors(Exp_Folder, filename_save_prefix, kmeans_cluste
                 data_filtered.cache()
                 
                 flag = 0
-                run_kmeans_thunder(Working_Directory, name_for_saving_figures, name_for_saving_files, redo_kmeans, data_filtered,\
-                data_background,kmeans_clusters, stim_start, stim_end,flag,stimulus_pulse)
+                run_kmeans_thunder(Working_Directory, name_for_saving_figures, name_for_saving_files_kmeans, redo_kmeans, data_filtered,\
+                data_background,kmeans_clusters, stimulus_on_time, stimulus_off_time,flag)
                 
     
-def run_analysis_eachodor(Exp_Folder, filename_save_prefix, kmeans_clusters, \
-    stim_start, stim_end, tsc, redo_kmeans, stimulus_pulse):
+def run_analysis_eachodor(Exp_Folder, filename_save_prefix,filename_save_prefix_forkmeanswithPCA, kmeans_clusters, \
+    stimulus_on_time, stimulus_off_time, tsc, redo_kmeans):
     
     Stimulus_Directories = [f for f in os.listdir(Exp_Folder) if os.path.isdir(os.path.join(Exp_Folder, f)) and f.find('Figures')<0]            
     for ii in xrange(0, np.size(Stimulus_Directories, axis = 0)):
@@ -63,8 +67,13 @@ def run_analysis_eachodor(Exp_Folder, filename_save_prefix, kmeans_clusters, \
         name_for_saving_figures = Stimulus_Directories[ii]       
 
         if len(txt_file)>0:
-           #Load data                    
-            data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputFormat='text', nkeys=3).toTimeSeries().detrend(method='linear', order=8)
+            #Load data        
+            if filename_save_prefix_forkmeanswithPCA == filename_save_prefix:
+                data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputFormat='text', nkeys=3).toTimeSeries().detrend(method='linear', order=8)
+            else:
+                name_for_saving_files_kmeans = Stimulus_Directories[ii] + '_'+ filename_save_prefix_forkmeanswithPCA+'_eachodor'
+                data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files_kmeans+'_pca_recon.txt', inputFormat='text', nkeys=3).toTimeSeries().detrend(method='linear', order=8)
+            
             data_background = tsc.loadSeries(Working_Directory+name_for_saving_files+'.txt', inputFormat='text', nkeys=3)
             data_background.cache()
             
@@ -73,12 +82,12 @@ def run_analysis_eachodor(Exp_Folder, filename_save_prefix, kmeans_clusters, \
             data_filtered.cache()
                 
             flag = 1
-            run_kmeans_thunder(Working_Directory, name_for_saving_figures, name_for_saving_files, redo_kmeans, data_filtered,\
-            data_background, kmeans_clusters,stim_start, stim_end, flag,stimulus_pulse)
+            run_kmeans_thunder(Working_Directory, name_for_saving_figures, name_for_saving_files_kmeans, redo_kmeans, data_filtered,\
+            data_background, kmeans_clusters,stimulus_on_time, stimulus_off_time, flag)
             
     
-def run_analysis_allodor(Exp_Folder, filename_save_prefix, kmeans_clusters, \
-    stim_start, stim_end, tsc, redo_kmeans, stimulus_pulse):
+def run_analysis_allodor(Exp_Folder, filename_save_prefix, filename_save_prefix_forkmeanswithPCA, kmeans_clusters, \
+    stimulus_on_time, stimulus_off_time, tsc, redo_kmeans):
     
     Working_Directory = Exp_Folder
 
@@ -87,22 +96,28 @@ def run_analysis_allodor(Exp_Folder, filename_save_prefix, kmeans_clusters, \
     
     if len(txt_file)>0:
        #Load data                    
-        data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputFormat='text', nkeys=3).toTimeSeries().detrend(method='linear', order=8)
+        if filename_save_prefix_forkmeanswithPCA == filename_save_prefix:
+            data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputFormat='text', nkeys=3).toTimeSeries().detrend(method='linear', order=8)
+            data_filtered.center()
+            data_filtered.zscore(10)
+        else:
+            name_for_saving_files_kmeans = 'All_odors_'+ filename_save_prefix_forkmeanswithPCA+'_eachodor'                    
+            data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files_kmeans+'_pca_recon.txt', inputFormat='text', nkeys=3)
+        
         data_background = tsc.loadSeries(Working_Directory+name_for_saving_files+'.txt', inputFormat='text', nkeys=3)
         data_background.cache()
-        
-        data_filtered.center()
-        data_filtered.zscore(10)
         data_filtered.cache()
+
+
             
         name_for_saving_figures = Working_Directory
         flag = 2
-        run_kmeans_thunder(Working_Directory, name_for_saving_figures, name_for_saving_files, redo_kmeans, data_filtered,\
-        data_background, kmeans_clusters, stim_start, stim_end, flag,stimulus_pulse)
+        run_kmeans_thunder(Working_Directory, name_for_saving_figures, name_for_saving_files_kmeans, redo_kmeans, data_filtered,\
+        data_background, kmeans_clusters, stimulus_on_time, stimulus_off_time, flag)
 
     
 def run_kmeans_thunder(Working_Directory, name_for_saving_figures, name_for_saving_files, redo_kmeans, data,data_background,\
-kmeans_clusters, stim_start, stim_end, flag,stimulus_pulse):
+kmeans_clusters, stimulus_on_time, stimulus_off_time, flag):
     
     
     ### If kmeans result files exists, then dont run any more kmeans, just do plotting, 
@@ -115,7 +130,7 @@ kmeans_clusters, stim_start, stim_end, flag,stimulus_pulse):
         text_file = open(Working_Directory + "log.txt", "a")
         text_file.write("Running kmeans in %s \n" % Working_Directory)
         print 'Running kmeans for all files...in '+ Working_Directory
-        kmeans_model, img_sim, img_labels, std_map = run_kmeans(data, kmeans_clusters)
+        kmeans_model, img_sim, img_labels = run_kmeans(data, kmeans_clusters)
         print 'Running kmeans took '+ str(int(time.time()-start_time)) +' seconds' 
         text_file.write("Running kmeans took %s seconds \n" %  str(int(time.time()-start_time)))
         
@@ -146,14 +161,14 @@ kmeans_clusters, stim_start, stim_end, flag,stimulus_pulse):
         text_file.write("Plotting Using existing pickled parameters....\n")
         with open(Working_Directory+name_for_saving_files+'_kmeans_results') as f:
             kmeans_clusters,kmeans_clusters_updated, img_sim, img_labels, brainmap, unique_clrs, newclrs_rgb, newclrs_brewer, matched_pixels = pickle.load(f)
-    
+        
     
     # Plot kmeans
     start_time = time.time()
     text_file.write("Plotting kmeans in %s \n" % Working_Directory)
     print 'Plotting kmeans in for all files...in '+ Working_Directory
     plot_kmeans_maps(Working_Directory, name_for_saving_figures, name_for_saving_files, \
-    kmeans_clusters_updated, img_sim, img_labels, brainmap, unique_clrs, newclrs_rgb, newclrs_brewer, matched_pixels, stim_start, stim_end, flag,stimulus_pulse)
+    kmeans_clusters_updated, img_sim, img_labels, brainmap, unique_clrs, newclrs_rgb, newclrs_brewer, matched_pixels, stimulus_on_time, stimulus_off_time, flag)
     print 'Plotting kmeans in '+ str(int(time.time()-start_time)) +' seconds' 
     text_file.write("Plotting kmeans in took %s seconds \n" %  str(int(time.time()-start_time)))
     
