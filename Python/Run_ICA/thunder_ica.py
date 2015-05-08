@@ -24,7 +24,7 @@ def run_ica(data,number_principle_components,ica_components):
 def make_ica_maps(data, imgs, img_size_x, img_size_y, num_ica_colors, color_map, colors_ica):
     
     reference = data.seriesMean().pack()
-    maps = Colorize(totype=color_map, colors = colors_ica, scale=num_ica_colors).images(abs(imgs), background=reference)
+    maps = Colorize(cmap=color_map, colors = colors_ica[0:np.size(imgs,0)], scale=num_ica_colors).transform(abs(imgs),background=reference, mixing=1.5)
         
     #Count number of unique colors in the images
     #Get number of planes based on map dimesnions
@@ -34,7 +34,7 @@ def make_ica_maps(data, imgs, img_size_x, img_size_y, num_ica_colors, color_map,
         num_planes = np.size(maps,2)
         
     unique_clrs = []
-    for ii in xrange(0, np.size(colors_ica)):
+    for ii in xrange(0, np.size(colors_ica[0:np.size(imgs,0)])):
         unique_clrs.append( np.round(np.array(webcolors.name_to_rgb(colors_ica[ii]), dtype=np.float)/255))
     
     #From maps get number of pixel matches with color for each plane

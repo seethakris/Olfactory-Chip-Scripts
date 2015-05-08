@@ -18,7 +18,7 @@ from libtiff import TIFF
 
 
 def plot_ica_maps(Working_Directory, name_for_saving_figures, name_for_saving_files, \
-ica_components_plot, maps, colors_ica, matched_pixels, stim_start, stim_end, flag,stimulus_pulse):
+ica_components_plot, maps, colors_ica, matched_pixels, stimulus_on_time, stimulus_off_time, flag):
     
      
     # To save as pdf create file
@@ -34,7 +34,7 @@ ica_components_plot, maps, colors_ica, matched_pixels, stim_start, stim_end, fla
     sns.set_context("talk", font_scale=1.25)
     with sns.axes_style("darkgrid"):
         ax1 = plt.subplot(221)
-        plot_ica_components(ica_components_plot,colors_ica, ax1,stim_start, stim_end,stimulus_pulse)
+        plot_ica_components(ica_components_plot,colors_ica, ax1,stimulus_on_time, stimulus_off_time)
                    
     ########### Plot Boxplot of number of pixels ##################        
     with sns.axes_style("white"):
@@ -297,7 +297,7 @@ def plot_colormaps_all_z_plane_wise(maps, Working_Directory, pp, matched_pixels,
                 plt.close()
         
 
-def plot_ica_components(ica_components_plot, colors_ica, ax1,stim_start, stim_end,stimulus_pulse):
+def plot_ica_components(ica_components_plot, colors_ica, ax1,stimulus_on_time, stimulus_off_time):
 ########### Plot components ##################    
     for ii in xrange(0, np.size(ica_components_plot, 1)):
         plt.plot(ica_components_plot[:,ii], color=colors_ica[ii])    
@@ -310,8 +310,8 @@ def plot_ica_components(ica_components_plot, colors_ica, ax1,stim_start, stim_en
         
     ax1.legend(A, loc=4)
     plt.axhline(y=0, linestyle='-', color='k', linewidth=1)
-    plot_vertical_lines(stim_start, stim_end,stimulus_pulse)
-        
+    plot_vertical_lines_onset(stimulus_on_time)
+    plot_vertical_lines_offset(stimulus_off_time)        
     
 def plot_boxplot(fig2, matched_pixels, colors_ica):
 #### Plot Boxplot of number of pixels
@@ -333,19 +333,13 @@ def plot_boxplot(fig2, matched_pixels, colors_ica):
     sns.despine(offset=10, trim=True);  
     return fig2
     
-def plot_vertical_lines(stim_start,stim_end,stimulus_pulse):
-    if stimulus_pulse == 1:
-        plt.axvline(x=stim_start, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end, linestyle='--', color='k', linewidth=1)
-        plt.axvline(x=stim_start+19, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end+19, linestyle='--', color='k', linewidth=1)
-        plt.axvline(x=stim_start+39, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end+39, linestyle='--', color='k', linewidth=1)
-        plt.axvline(x=stim_start+59, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end+59, linestyle='--', color='k', linewidth=1)
-    else:
-        plt.axvline(x=stim_start, linestyle='-', color='k', linewidth=1)
-        plt.axvline(x=stim_end, linestyle='--', color='k', linewidth=1)
-    
+def plot_vertical_lines_onset(stimulus_on_time):
+    for ii in xrange(0,np.size(stimulus_on_time)):
+        plt.axvline(x=stimulus_on_time[ii], linestyle='-', color='k', linewidth=1)
+
+def plot_vertical_lines_offset(stimulus_off_time):
+    for ii in xrange(0,np.size(stimulus_off_time)):
+        plt.axvline(x=stimulus_off_time[ii], linestyle='--', color='k', linewidth=1)
+                
         
 

@@ -9,7 +9,6 @@ filesep = os.path.sep
 
 import time
 import numpy as np
-import matplotlib.pyplot as plt 
 import pickle
 
 from thunder_ica import run_ica
@@ -18,7 +17,7 @@ from thunder_ica_plots import plot_ica_maps
 
 
 ## ica on individual odors
-def run_analysis_individualodors(Exp_Folder, filename_save_prefix, number_principle_components, ica_components, num_ica_colors, color_map, colors_ica, stim_start, stim_end, tsc,redo_ica,stimulus_pulse):
+def run_analysis_individualodors(Exp_Folder, filename_save_prefix, number_principle_components, ica_components, num_ica_colors, color_map, colors_ica, stimulus_on_time, stimulus_off_time, tsc,redo_ica,time_baseline):
 
 
     Stimulus_Directories = [f for f in os.listdir(Exp_Folder) if os.path.isdir(os.path.join(Exp_Folder, f)) and f.find('Figures')<0]
@@ -39,20 +38,20 @@ def run_analysis_individualodors(Exp_Folder, filename_save_prefix, number_princi
             if len(txt_file)>0:
                                 
                 #Load data        
-                data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputformat='text', nkeys=3)
-                data_background = tsc.loadSeries(Working_Directory+name_for_saving_files+'.txt', inputformat='text', nkeys=3)
+                data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputFormat='text', nkeys=3).toTimeSeries().detrend(method='linear', order=5)
+                data_background = tsc.loadSeries(Working_Directory+name_for_saving_files+'.txt', inputFormat='text', nkeys=3)
                              
                 data_filtered.center()
-                data_filtered.zscore()
+                data_filtered.zscore(time_baseline)
                 data_filtered.cache()
                 
                 flag = 0
                 run_ica_thunder(Working_Directory, name_for_saving_figures, name_for_saving_files, redo_ica, data_filtered,\
-                data_background, number_principle_components, ica_components, num_ica_colors, color_map, colors_ica, stim_start, stim_end,  flag,stimulus_pulse)
+                data_background, number_principle_components, ica_components, num_ica_colors, color_map, colors_ica, stimulus_on_time, stimulus_off_time,  flag)
                 
     
 def run_analysis_eachodor(Exp_Folder, filename_save_prefix, number_principle_components, ica_components, num_ica_colors, color_map,\
-colors_ica, stim_start, stim_end,tsc,redo_ica,stimulus_pulse):
+colors_ica, stimulus_on_time, stimulus_off_time,tsc,redo_ica,time_baseline):
     
     Stimulus_Directories = [f for f in os.listdir(Exp_Folder) if os.path.isdir(os.path.join(Exp_Folder, f)) and f.find('Figures')<0]            
     for ii in xrange(0, np.size(Stimulus_Directories, axis = 0)):
@@ -64,20 +63,20 @@ colors_ica, stim_start, stim_end,tsc,redo_ica,stimulus_pulse):
 
         if len(txt_file)>0:
            #Load data                    
-            data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputformat='text', nkeys=3)
-            data_background = tsc.loadSeries(Working_Directory+name_for_saving_files+'.txt', inputformat='text', nkeys=3)
+            data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputFormat='text', nkeys=3).toTimeSeries().detrend(method='linear', order=5)
+            data_background = tsc.loadSeries(Working_Directory+name_for_saving_files+'.txt', inputFormat='text', nkeys=3)
                         
             data_filtered.center()
-            data_filtered.zscore()
+            data_filtered.zscore(time_baseline)
             data_filtered.cache()
                 
             flag = 1
             run_ica_thunder(Working_Directory, name_for_saving_figures, name_for_saving_files,redo_ica, data_filtered,\
-            data_background, number_principle_components, ica_components, num_ica_colors, color_map, colors_ica, stim_start, stim_end, flag,stimulus_pulse)
+            data_background, number_principle_components, ica_components, num_ica_colors, color_map, colors_ica, stimulus_on_time, stimulus_off_time, flag)
             
     
 def run_analysis_allodor(Exp_Folder, filename_save_prefix, number_principle_components, ica_components, num_ica_colors, color_map,\
-colors_ica, stim_start, stim_end, tsc,redo_ica,stimulus_pulse):
+colors_ica, stimulus_on_time, stimulus_off_time, tsc,redo_ica,time_baseline):
     
     Working_Directory = Exp_Folder
         
@@ -86,21 +85,21 @@ colors_ica, stim_start, stim_end, tsc,redo_ica,stimulus_pulse):
     
     if len(txt_file)>0:
        #Load data                    
-        data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputformat='text', nkeys=3)
-        data_background = tsc.loadSeries(Working_Directory+name_for_saving_files+'.txt', inputformat='text', nkeys=3)
+        data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputFormat='text', nkeys=3).toTimeSeries().detrend(method='linear', order=5)
+        data_background = tsc.loadSeries(Working_Directory+name_for_saving_files+'.txt', inputFormat='text', nkeys=3)
                 
         data_filtered.center()
-        data_filtered.zscore()
+        data_filtered.zscore(time_baseline)
         data_filtered.cache()
             
         name_for_saving_figures = Working_Directory
         flag = 2
         run_ica_thunder(Working_Directory, name_for_saving_figures, name_for_saving_files, redo_ica,data_filtered,\
-        data_background, number_principle_components, ica_components, num_ica_colors, color_map, colors_ica, stim_start, stim_end, flag,stimulus_pulse)
+        data_background, number_principle_components, ica_components, num_ica_colors, color_map, colors_ica, stimulus_on_time, stimulus_off_time, flag)
 
     
 def run_ica_thunder(Working_Directory, name_for_saving_figures, name_for_saving_files, redo_ica, data,data_background,\
-number_principle_components, ica_components, num_ica_colors, color_map, colors_ica, stim_start, stim_end, flag,stimulus_pulse):
+number_principle_components, ica_components, num_ica_colors, color_map, colors_ica, stimulus_on_time, stimulus_off_time, flag):
     
     
     ### If ica result files exists, then dont run any more ica, just do plotting, 
@@ -149,7 +148,7 @@ number_principle_components, ica_components, num_ica_colors, color_map, colors_i
     text_file.write("Plotting ica in %s \n" % Working_Directory)
     print 'Plotting ica in for all files...in '+ Working_Directory
     plot_ica_maps(Working_Directory, name_for_saving_figures, name_for_saving_files, \
-    ica_components_plot, maps, colors_ica, matched_pixels, stim_start, stim_end, flag,stimulus_pulse)
+    ica_components_plot, maps, colors_ica, matched_pixels, stimulus_on_time, stimulus_off_time, flag)
     print 'Plotting ica in '+ str(int(time.time()-start_time)) +' seconds' 
     text_file.write("Plotting ica in took %s seconds \n" %  str(int(time.time()-start_time)))
     
