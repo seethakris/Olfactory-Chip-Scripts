@@ -32,6 +32,7 @@ kmeans_clusters_eachodor = 12 #Number of kmeans clusters  to detect from files
 #kmeans parameters for all odor kmeans
 kmeans_clusters_allodor = 5 #Number of kmeans clusters to detect from files
 
+time_baseline = 10 #Baseline over which ot normalizes
 
 ######################################################################
 ########################## Run Scripts ###############################
@@ -59,7 +60,7 @@ elif stimulus_pulse == 2:
     
 if use_existing_parameters == 1:
     with open(Exp_Folder+filename_save_prefix+'_save_kmeans_variables') as f:
-        kmeans_clusters_ind, kmeans_clusters_eachodor, kmeans_clusters_allodor = pickle.load(f)
+        kmeans_clusters_ind, kmeans_clusters_eachodor, kmeans_clusters_allodor, time_baseline = pickle.load(f)
 
 
 # Go into the main function that does kmeans for indiviudal trials
@@ -74,16 +75,16 @@ tsc = ThunderContext.start(appName="thunderkmeans")
 
 if files_to_do_kmeans[0]== 1:
     run_analysis_individualodors(Exp_Folder, filename_save_prefix, filename_save_prefix_forkmeanswithPCA, kmeans_clusters_ind,\
-    stimulus_on_time, stimulus_off_time, tsc,redo_kmeans)
+    stimulus_on_time, stimulus_off_time, tsc,redo_kmeans,time_baseline)
     
 if files_to_do_kmeans[1]== 1:
     run_analysis_eachodor(Exp_Folder, filename_save_prefix, filename_save_prefix_forkmeanswithPCA, kmeans_clusters_eachodor, \
-    stimulus_on_time, stimulus_off_time, tsc,redo_kmeans)
+    stimulus_on_time, stimulus_off_time, tsc,redo_kmeans,time_baseline)
 
 if files_to_do_kmeans[2]== 1:
     run_analysis_allodor(Exp_Folder, filename_save_prefix, filename_save_prefix_forkmeanswithPCA, kmeans_clusters_allodor, \
-    stimulus_on_time, stimulus_off_time, tsc,redo_kmeans)
+    stimulus_on_time, stimulus_off_time, tsc,redo_kmeans, time_baseline)
     
 ############# Save all imput parameters
 with open(Exp_Folder+filename_save_prefix+'_save_kmeans_variables', 'w') as f:
-    pickle.dump([kmeans_clusters_ind, kmeans_clusters_eachodor, kmeans_clusters_allodor], f)
+    pickle.dump([kmeans_clusters_ind, kmeans_clusters_eachodor, kmeans_clusters_allodor, time_baseline], f)

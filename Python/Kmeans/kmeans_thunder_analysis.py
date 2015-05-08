@@ -18,7 +18,7 @@ from thunder_kmeans_plots import plot_kmeans_maps
 
 ## kmeans on individual odors
 def run_analysis_individualodors(Exp_Folder, filename_save_prefix, filename_save_prefix_forkmeanswithPCA, kmeans_clusters, \
-    stimulus_on_time, stimulus_off_time, tsc, redo_kmeans):
+    stimulus_on_time, stimulus_off_time, tsc, redo_kmeans,time_baseline):
 
 
     Stimulus_Directories = [f for f in os.listdir(Exp_Folder) if os.path.isdir(os.path.join(Exp_Folder, f)) and f.find('Figures')<0]
@@ -40,15 +40,14 @@ def run_analysis_individualodors(Exp_Folder, filename_save_prefix, filename_save
                 #Load data        
                 if filename_save_prefix_forkmeanswithPCA == filename_save_prefix:
                     data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputFormat='text', nkeys=3).toTimeSeries().detrend(method='linear', order=8)
+                    data_filtered.center()
+                    data_filtered.zscore(time_baseline)
                 else:
                     name_for_saving_files_kmeans = Stimulus_Directories[ii] + '_' + Trial_Directories[jj] + filename_save_prefix_forkmeanswithPCA+'_individualtrial'
                     data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files_kmeans+'_pca_recon.txt', inputFormat='text', nkeys=3)
 
                 data_background = tsc.loadSeries(Working_Directory+name_for_saving_files+'.txt', inputFormat='text', nkeys=3)
                 data_background.cache()
-                
-                data_filtered.center()
-                data_filtered.zscore(10)
                 data_filtered.cache()
                 
                 flag = 0
@@ -57,7 +56,7 @@ def run_analysis_individualodors(Exp_Folder, filename_save_prefix, filename_save
                 
     
 def run_analysis_eachodor(Exp_Folder, filename_save_prefix,filename_save_prefix_forkmeanswithPCA, kmeans_clusters, \
-    stimulus_on_time, stimulus_off_time, tsc, redo_kmeans):
+    stimulus_on_time, stimulus_off_time, tsc, redo_kmeans,time_baseline):
     
     Stimulus_Directories = [f for f in os.listdir(Exp_Folder) if os.path.isdir(os.path.join(Exp_Folder, f)) and f.find('Figures')<0]            
     for ii in xrange(0, np.size(Stimulus_Directories, axis = 0)):
@@ -70,6 +69,8 @@ def run_analysis_eachodor(Exp_Folder, filename_save_prefix,filename_save_prefix_
             #Load data        
             if filename_save_prefix_forkmeanswithPCA == filename_save_prefix:
                 data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputFormat='text', nkeys=3).toTimeSeries().detrend(method='linear', order=8)
+                data_filtered.center()
+                data_filtered.zscore(time_baseline)
             else:
                 name_for_saving_files_kmeans = Stimulus_Directories[ii] + '_'+ filename_save_prefix_forkmeanswithPCA+'_eachodor'
                 data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files_kmeans+'_pca_recon.txt', inputFormat='text', nkeys=3).toTimeSeries().detrend(method='linear', order=8)
@@ -77,8 +78,6 @@ def run_analysis_eachodor(Exp_Folder, filename_save_prefix,filename_save_prefix_
             data_background = tsc.loadSeries(Working_Directory+name_for_saving_files+'.txt', inputFormat='text', nkeys=3)
             data_background.cache()
             
-            data_filtered.center()
-            data_filtered.zscore(10)
             data_filtered.cache()
                 
             flag = 1
@@ -87,7 +86,7 @@ def run_analysis_eachodor(Exp_Folder, filename_save_prefix,filename_save_prefix_
             
     
 def run_analysis_allodor(Exp_Folder, filename_save_prefix, filename_save_prefix_forkmeanswithPCA, kmeans_clusters, \
-    stimulus_on_time, stimulus_off_time, tsc, redo_kmeans):
+    stimulus_on_time, stimulus_off_time, tsc, redo_kmeans,time_baseline):
     
     Working_Directory = Exp_Folder
 
@@ -99,7 +98,7 @@ def run_analysis_allodor(Exp_Folder, filename_save_prefix, filename_save_prefix_
         if filename_save_prefix_forkmeanswithPCA == filename_save_prefix:
             data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputFormat='text', nkeys=3).toTimeSeries().detrend(method='linear', order=8)
             data_filtered.center()
-            data_filtered.zscore(10)
+            data_filtered.zscore(time_baseline)
         else:
             name_for_saving_files_kmeans = 'All_odors_'+ filename_save_prefix_forkmeanswithPCA+'_eachodor'                    
             data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files_kmeans+'_pca_recon.txt', inputFormat='text', nkeys=3)
