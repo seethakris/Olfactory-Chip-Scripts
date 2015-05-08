@@ -6,7 +6,7 @@ Run PCA and get colormaps
 """
 
 #Import python libraries
-from numpy import newaxis, squeeze, size, where, array, mean, zeros, round, reshape, float16, delete
+from numpy import newaxis, squeeze, size, where, array, mean, zeros, round, reshape, float16, delete, savetxt,hstack
 from scipy import stats
 from numpy import asarray
 
@@ -95,8 +95,46 @@ def make_pca_maps(data,pca, imgs, required_pcs, img_size_x, img_size_y,  num_pca
     
     return maps, pts, pts_nonblack, clrs, clrs_nonblack, recon, unique_clrs, matched_pixels, matched_signals, mean_signal, sem_signal
     
+    
+def create_data_in_pca_space(imgs_pca, pca_components, required_pcs,thresh_pca, Working_Directory, name_for_saving_files):
+    ## Reconstruct from PCA and save as textfile
+    print 'Saving reconstructed PCA data in the text file '    
+    recon_img = zeros((size(imgs_pca,1),size(imgs_pca,2),size(imgs_pca,3),size(pca_components,0)))
+    if required_pcs == 0:
+        required_pcs = array(xrange(4))
+        
+    for ii in range(0,size(imgs_pca,1)):
+        for jj in range(0,size(imgs_pca,2)):
+            for zz in range(0, size(imgs_pca,3)):
+                pt_image = imgs_pca[:,ii,jj,zz] 
+                if (abs(pt_image)>thresh_pca).any():
+                    for pp in range(0, size(required_pcs,0)):
+                        recon_img[ii,jj,zz,:] += pt_image[required_pcs[pp]]*pca_components[:,required_pcs[pp]]
+    
+                    
+    ## Convert data to textfile format and save
+    temp_numpy_array_for_thunder1 = zeros([size(recon_img, axis=0)*size(recon_img, axis=1)*size(recon_img,axis=2),3], dtype=int)
+    temp_numpy_array_for_thunder2 = zeros([size(recon_img, axis=0)*size(recon_img, axis=1)*size(recon_img,axis=2),size(recon_img,axis=3)], dtype=float)
+
+    count = 0
+    for zz in range(0, size(imgs_pca,3)):
+        for jj in range(0,size(imgs_pca,2)):
+            for ii in range(0,size(imgs_pca,1)):
+                    
+                temp_numpy_array_for_thunder1[count,0] = ii+1;
+                temp_numpy_array_for_thunder1[count,1] = jj+1;
+                temp_numpy_array_for_thunder1[count,2] = zz+1;
+                # Create delta f/f values if necessary
+                temp_numpy_array_for_thunder2[count,:] = recon_img[ii,jj,zz,:]                   
+                count = count+1 
+    
+    #Save array
+    temp_numpy_array_for_thunder = hstack((temp_numpy_array_for_thunder1, temp_numpy_array_for_thunder2))
+    savetxt(Working_Directory+name_for_saving_files+'_pca_recon.txt', temp_numpy_array_for_thunder, fmt='%g')#Save as text file
+
 class structtype():
     pass
+
 
 
 

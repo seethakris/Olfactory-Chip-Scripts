@@ -17,7 +17,7 @@ import pickle
 from thunder_pca import run_pca
 from thunder_pca import make_pca_maps
 from thunder_pca_plots import plot_pca_maps
-
+from thunder_pca import create_data_in_pca_space
 
 ## PCA on individual odors
 def run_analysis_individualodors(Exp_Folder, filename_save_prefix_forPCA, filename_save_prefix_for_textfile, pca_components, num_pca_colors, num_samples, thresh_pca,\
@@ -147,6 +147,12 @@ pca_components, num_pca_colors, num_samples, thresh_pca, color_map,  flag, stimu
         pca_components = pca.comps.T
         ## save input parameters
         ############# Save all imput parameters
+        start_time = time.time()
+        text_file.write("Saving PCA reconstructed data.. in %s \n" % Working_Directory)
+        create_data_in_pca_space(imgs_pca, pca_components, required_pcs,0.003, Working_Directory, name_for_saving_files)
+        print 'Saving PCA reconstructed data in '+ str(int(time.time()-start_time)) +' seconds' 
+        text_file.write("Saving PCA reconstructed data took %s seconds \n" %  str(int(time.time()-start_time)))
+            
         with open(Working_Directory+name_for_saving_files+'_pca_results', 'w') as f:
             pickle.dump([pca_components, imgs_pca,new_imgs, maps, pts, pts_nonblack, clrs, clrs_nonblack, recon, unique_clrs, matched_pixels, matched_signals, mean_signal, sem_signal],f)
     
@@ -156,8 +162,12 @@ pca_components, num_pca_colors, num_samples, thresh_pca, color_map,  flag, stimu
         text_file.write("Plotting Using existing pickled parameters....\n")
         with open(Working_Directory+name_for_saving_files+'_pca_results') as f:
             pca_components, imgs_pca, new_imgs, maps, pts, pts_nonblack, clrs, clrs_nonblack, recon, unique_clrs, matched_pixels, matched_signals, mean_signal, sem_signal = pickle.load(f)
-    
-    
+        
+            start_time = time.time()
+            text_file.write("Saving PCA reconstructed data.. in %s \n" % Working_Directory)
+            create_data_in_pca_space(imgs_pca, pca_components, required_pcs,0.003, Working_Directory, name_for_saving_files)
+            print 'Saving PCA reconstructed data in '+ str(int(time.time()-start_time)) +' seconds' 
+            text_file.write("Saving PCA reconstructed data took %s seconds \n" %  str(int(time.time()-start_time)))
 # Plot PCA
     start_time = time.time()
     text_file.write("Plotting pca in %s \n" % Working_Directory)
