@@ -8,7 +8,7 @@ Created on Mon Jan 26 17:07:18 2015
 
 
 ## Enter Main Folder containing stimulus folders to create text files
-Exp_Folder ='/Users/seetha/Desktop/KCTD/Fish14_KCTDHUC_5dpf/Tiff/Cropped/Registered/Thresholded_OB/Registered_Stimulus/'
+Exp_Folder ='/Users/seetha/Desktop/KCTD/Fish15_KCTDHUC_5dpf/Tiff/Cropped/Registered/Thresholded_OB/Registered_Stimulus/'
 filename_save_prefix_forkmeanswithPCA = 'ThresholdedOB_1and2PC_T81'
 filename_save_prefix = 'ThresholdedOB_T81'
 
@@ -19,7 +19,8 @@ files_to_do_kmeans = [0,0,1] #Individual kmeans, Each_odor kmeans, All_odor kmea
 use_existing_parameters = 0
 
 #Redo kmeans - 1
-redo_kmeans = 1
+redo_kmeans = 0
+redo_kmeans_colormap = 0
 
 #kmeans parameters for individual trial kmeans
 kmeans_clusters_ind = 12 #Number of kmeans clusters to detect from files
@@ -47,8 +48,8 @@ with open(Exp_Folder+filename_save_prefix +'_save_input_variables') as f:
 #Stimulus on and off time
 stimulus_pulse = 1
 if stimulus_pulse == 1:
-    stimulus_on_time = [10,30,49,68]
-    stimulus_off_time = [14,34,53,72]
+    stimulus_on_time = [10,31,50,69]
+    stimulus_off_time = [14,35,54,73]
     color_mat = ['#00FFFF','#0000A0','#800080','#FF00FF']
 
     
@@ -75,15 +76,15 @@ tsc = ThunderContext.start(appName="thunderkmeans")
 
 if files_to_do_kmeans[0]== 1:
     run_analysis_individualodors(Exp_Folder, filename_save_prefix, filename_save_prefix_forkmeanswithPCA, kmeans_clusters_ind,\
-    stimulus_on_time, stimulus_off_time, tsc,redo_kmeans,time_baseline)
+    stimulus_on_time, stimulus_off_time, tsc,redo_kmeans,time_baseline,redo_kmeans_colormap)
     
 if files_to_do_kmeans[1]== 1:
     run_analysis_eachodor(Exp_Folder, filename_save_prefix, filename_save_prefix_forkmeanswithPCA, kmeans_clusters_eachodor, \
-    stimulus_on_time, stimulus_off_time, tsc,redo_kmeans,time_baseline)
+    stimulus_on_time, stimulus_off_time, tsc,redo_kmeans,time_baseline,redo_kmeans_colormap)
 
 if files_to_do_kmeans[2]== 1:
     run_analysis_allodor(Exp_Folder, filename_save_prefix, filename_save_prefix_forkmeanswithPCA, kmeans_clusters_allodor, \
-    stimulus_on_time, stimulus_off_time, tsc,redo_kmeans, time_baseline)
+    stimulus_on_time, stimulus_off_time, tsc,redo_kmeans, time_baseline,redo_kmeans_colormap)
     
 ############# Save all imput parameters
 with open(Exp_Folder+filename_save_prefix+'_save_kmeans_variables', 'w') as f:

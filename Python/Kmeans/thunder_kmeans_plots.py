@@ -96,7 +96,7 @@ def plot_colormaps_ind(maps, Working_Directory, name_for_saving_figures, pp):
     
 def plot_colormaps_each(maps, Working_Directory, name_for_saving_figures, pp, matched_pixels, unique_clrs):
     
-    Trial_Directories = [f for f in os.listdir(os.path.join(Working_Directory)) if os.path.isdir(os.path.join(Working_Directory, f)) and f.find('Figures')<0] #Get only directories
+    Trial_Directories = [f for f in os.listdir(os.path.join(Working_Directory)) if os.path.isdir(os.path.join(Working_Directory, f)) and f.find('Figures')<0 and f.find('DataFrames')<0] #Get only directories
     
     ## To find num z planes in each trial directory
     num_z_planes = np.zeros((np.size(Trial_Directories)), dtype=np.int)
@@ -155,13 +155,13 @@ def plot_colormaps_each(maps, Working_Directory, name_for_saving_figures, pp, ma
     
 def  plot_colormaps_all(maps, Working_Directory, pp, matched_pixels, unique_clrs):
     
-    Stimulus_Directories = [f for f in os.listdir(Working_Directory) if os.path.isdir(os.path.join(Working_Directory, f)) and f.find('Figures')<0]
+    Stimulus_Directories = [f for f in os.listdir(Working_Directory) if os.path.isdir(os.path.join(Working_Directory, f)) and f.find('Figures')<0 and f.find('DataFrames')<0]
     
     ## To find num z planes in each trial directory
     num_z_planes = []
     for ii in xrange(0, np.size(Stimulus_Directories, axis = 0)):
         Trial_Directories = [f for f in os.listdir(os.path.join(Working_Directory, Stimulus_Directories[ii]))\
-        if os.path.isdir(os.path.join(Working_Directory, Stimulus_Directories[ii], f)) and f.find('Figures')<0] #Get only directories        
+        if os.path.isdir(os.path.join(Working_Directory, Stimulus_Directories[ii], f)) and f.find('Figures')<0 and f.find('DataFrames')<0] #Get only directories        
         temp_num_z_planes = np.zeros((np.size(Trial_Directories)), dtype=np.int)    
         
         for jj in xrange(0, np.size(Trial_Directories, axis = 0)):
@@ -182,7 +182,7 @@ def  plot_colormaps_all(maps, Working_Directory, pp, matched_pixels, unique_clrs
         count_subplot = 1
         
         Trial_Directories = [f for f in os.listdir(os.path.join(Working_Directory, Stimulus_Directories[ii]))\
-        if os.path.isdir(os.path.join(Working_Directory, Stimulus_Directories[ii], f)) and f.find('Figures')<0] #Get only directories        
+        if os.path.isdir(os.path.join(Working_Directory, Stimulus_Directories[ii], f)) and f.find('Figures')<0 and f.find('DataFrames')<0] #Get only directories        
         
         for jj in xrange(0, np.size(Trial_Directories, axis = 0)):
             for kk in xrange(0, num_z_planes[ii][jj]):
@@ -232,13 +232,13 @@ def  plot_colormaps_all(maps, Working_Directory, pp, matched_pixels, unique_clrs
 def plot_colormaps_all_z_plane_wise(maps, Working_Directory, pp, matched_pixels, unique_clrs):
     
     
-    Stimulus_Directories = [f for f in os.listdir(Working_Directory) if os.path.isdir(os.path.join(Working_Directory, f)) and f.find('Figures')<0]
+    Stimulus_Directories = [f for f in os.listdir(Working_Directory) if os.path.isdir(os.path.join(Working_Directory, f)) and f.find('Figures')<0 and f.find('DataFrames')<0]
     
     ## To find num z planes in each trial directory
     num_z_planes = []
     for ii in xrange(0, np.size(Stimulus_Directories, axis = 0)):
         Trial_Directories = [f for f in os.listdir(os.path.join(Working_Directory, Stimulus_Directories[ii]))\
-        if os.path.isdir(os.path.join(Working_Directory, Stimulus_Directories[ii], f)) and f.find('Figures')<0] #Get only directories        
+        if os.path.isdir(os.path.join(Working_Directory, Stimulus_Directories[ii], f)) and f.find('Figures')<0 and f.find('DataFrames')<0] #Get only directories        
         temp_num_z_planes = np.zeros((np.size(Trial_Directories)), dtype=np.int)    
         
         for jj in xrange(0, np.size(Trial_Directories, axis = 0)):
@@ -258,7 +258,7 @@ def plot_colormaps_all_z_plane_wise(maps, Working_Directory, pp, matched_pixels,
     count = 0
     for ii in xrange(0, np.size(Stimulus_Directories, axis = 0)):        
         Trial_Directories = [f for f in os.listdir(os.path.join(Working_Directory, Stimulus_Directories[ii]))\
-        if os.path.isdir(os.path.join(Working_Directory, Stimulus_Directories[ii], f)) and f.find('Figures')<0] #Get only directories                
+        if os.path.isdir(os.path.join(Working_Directory, Stimulus_Directories[ii], f)) and f.find('Figures')<0 and f.find('DataFrames')<0] #Get only directories                
         for jj in xrange(0, np.size(Trial_Directories, axis = 0)):
             for kk in xrange(0, num_z_planes[ii][jj]):
                 name_for_saving_figures1.append(Stimulus_Directories[ii] + ' ' + Trial_Directories[jj] + ' Z=' + str(kk+1))        
@@ -313,6 +313,12 @@ def plot_kmeans_components(kmeans_clusters, clrs, ax1,stimulus_on_time, stimulus
     plt.plot(kmeans_clusters[:,:])
     plt.locator_params(axis = 'y', nbins = 4)
     sns.axlabel("Time (seconds)","a.u")
+    
+    A = []
+    for ii in xrange(0,np.size(kmeans_clusters, 1)):
+        A = np.append(A, [str(ii)])
+        
+    ax1.legend(A, loc=4)
     
 #    plt.ylim((-1, 1))
     plt.axhline(y=0, linestyle='-', color='k', linewidth=1)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Jan 22 17:05:40 2015
-Run PCA and get colormaps
+Run Kmeans and get colormaps
 @author: seetha
 """
 
@@ -37,11 +37,11 @@ def make_kmeans_maps(data, kmeans_cluster_centers, img_labels, img_sim, img_size
     reference = data.seriesMean().pack()
     
     #Only plot those clusters where the standard deviation is greater than 0.1 - thus getting rid of noisy clusters
-    interesting_clusters = np.array(np.where(np.logical_and(np.std(kmeans_cluster_centers.T,0)>0.0001,\
-    np.max(kmeans_cluster_centers.T,0)>0.00001)))
+    interesting_clusters = np.array(np.where(np.logical_and(np.std(kmeans_cluster_centers,0)>0.0001,\
+    np.max(kmeans_cluster_centers,0)>0.00001)))
 
     
-    newclrs_rgb, newclrs_brewer = Colorize.optimize(kmeans_cluster_centers.T.T, asCmap=True)
+    newclrs_rgb, newclrs_brewer = Colorize.optimize(kmeans_cluster_centers.T, asCmap=True)
     
     #Brewer colors
     newclrs_updated_brewer =  update_colors(newclrs_brewer, interesting_clusters)
@@ -51,8 +51,8 @@ def make_kmeans_maps(data, kmeans_cluster_centers, img_labels, img_sim, img_size
     newclrs_updated_rgb.colors = np.round(newclrs_updated_rgb.colors)
      
     #Update kmeans clusters with those with higher standard deviation
-    kmeans_cluster_centers_updated = np.zeros((np.shape(kmeans_cluster_centers.T)))
-    kmeans_cluster_centers_updated[:,interesting_clusters] = kmeans_cluster_centers.T[:,interesting_clusters]
+    kmeans_cluster_centers_updated = np.zeros((np.shape(kmeans_cluster_centers)))
+    kmeans_cluster_centers_updated[:,interesting_clusters] = kmeans_cluster_centers[:,interesting_clusters]
     
     #Create maps
     brainmap = Colorize(cmap=newclrs_updated_brewer).transform(img_labels, mask=img_sim, background=reference, mixing=1.0)
@@ -102,5 +102,4 @@ def update_colors(newclrs, interesting_clusters):
     newclrs_updated.colors[interesting_clusters,:] = newclrs.colors[interesting_clusters,:]
    
     return newclrs_updated
-
 
