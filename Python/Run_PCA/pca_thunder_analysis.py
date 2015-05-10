@@ -24,11 +24,11 @@ def run_analysis_individualodors(Exp_Folder, filename_save_prefix_forPCA, filena
 color_map, tsc,redo_pca,stimulus_on_time, stimulus_off_time, color_mat,required_pcs, time_baseline):
 
 
-    Stimulus_Directories = [f for f in os.listdir(Exp_Folder) if os.path.isdir(os.path.join(Exp_Folder, f)) and f.find('Figures')<0]
+    Stimulus_Directories = [f for f in os.listdir(Exp_Folder) if os.path.isdir(os.path.join(Exp_Folder, f)) and f.find('Figures')<0 and f.find('DataFrames')<0]
     
     for ii in xrange(0, np.size(Stimulus_Directories, axis = 0)):
         Trial_Directories = [f for f in os.listdir(os.path.join(Exp_Folder, Stimulus_Directories[ii]))\
-        if os.path.isdir(os.path.join(Exp_Folder, Stimulus_Directories[ii], f)) and f.find('Figures')<0] #Get only directories
+        if os.path.isdir(os.path.join(Exp_Folder, Stimulus_Directories[ii], f)) and f.find('Figures')<0 and f.find('DataFrames')<0] #Get only directories
         
         for jj in xrange(0, np.size(Trial_Directories, axis = 0)):
             Working_Directory = os.path.join(Exp_Folder, Stimulus_Directories[ii], Trial_Directories[jj], 'C=1')+filesep        
@@ -60,7 +60,7 @@ color_map, tsc,redo_pca,stimulus_on_time, stimulus_off_time, color_mat,required_
 def run_analysis_eachodor(Exp_Folder, filename_save_prefix_forPCA, filename_save_prefix_for_textfile, pca_components, num_pca_colors, num_samples, thresh_pca, color_map,\
 tsc,redo_pca, stimulus_on_time, stimulus_off_time, color_mat,required_pcs, time_baseline):
     
-    Stimulus_Directories = [f for f in os.listdir(Exp_Folder) if os.path.isdir(os.path.join(Exp_Folder, f)) and f.find('Figures')<0]            
+    Stimulus_Directories = [f for f in os.listdir(Exp_Folder) if os.path.isdir(os.path.join(Exp_Folder, f)) and f.find('Figures')<0 and f.find('DataFrames')<0]            
     for ii in xrange(0, np.size(Stimulus_Directories, axis = 0)):
         Working_Directory = os.path.join(Exp_Folder, Stimulus_Directories[ii])+filesep     
         
@@ -96,7 +96,7 @@ def run_analysis_allodor(Exp_Folder, filename_save_prefix_forPCA, filename_save_
     
     if len(txt_file)>0:
        #Load data                    
-        data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputFormat='text', nkeys=3).toTimeSeries().detrend(method='linear', order=5)
+        data_filtered = tsc.loadSeries(Working_Directory+name_for_saving_files+'_filtered.txt', inputFormat='text', nkeys=3).toTimeSeries().detrend(method='linear', order=10)
         data_background = tsc.loadSeries(Working_Directory+name_for_saving_files+'.txt', inputFormat='text', nkeys=3)
         
 #        data_plotting = data_background

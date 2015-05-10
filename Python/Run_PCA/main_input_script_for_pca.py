@@ -18,7 +18,7 @@ files_to_do_PCA = [0,0,1] #Individual PCA, Each_odor PCA, All_odor PCA
 use_existing_parameters = 1
 
 #Redo pca - 1
-redo_pca = 0
+redo_pca = 1
 
 # Required pcs from what was received previously
 required_pcs = [1,2]
