@@ -23,7 +23,7 @@ image = Colorize.image
 
 ## NMF on individual exps
 def run_analysis_individualodors(Exp_Folder, filename_save_prefix, NMF_components, num_NMF_colors, \
-color_map, tsc,redo_NMF, stimulus_on_time, stimulus_off_time,time_baseline,colors_NMF,max_iterations, tolerence_level):
+color_map, tsc,redo_NMF, stimulus_on_time, stimulus_off_time,time_baseline,colors_NMF,max_iterations, tolerence_level,remake_colormap):
 
 
     Stimulus_Directories = [f for f in os.listdir(Exp_Folder) if os.path.isdir(os.path.join(Exp_Folder, f)) and f.find('Figures')<0]
@@ -54,11 +54,11 @@ color_map, tsc,redo_NMF, stimulus_on_time, stimulus_off_time,time_baseline,color
                 name_for_saving_files = Stimulus_Directories[ii] + '_' + Trial_Directories[jj] + filename_save_prefix+'_individualtrial'
                 run_NMF_thunder(Working_Directory, name_for_saving_figures, name_for_saving_files, redo_NMF, data_filtered,\
                 data_background,NMF_components, num_NMF_colors, color_map,  flag, stimulus_on_time, stimulus_off_time, colors_NMF,\
-                max_iterations, tolerence_level)
+                max_iterations, tolerence_level,remake_colormap)
                 
     
 def run_analysis_eachodor(Exp_Folder, filename_save_prefix, NMF_components, num_NMF_colors, color_map,\
-tsc,redo_NMF, stimulus_on_time, stimulus_off_time, time_baseline,colors_NMF,max_iterations, tolerence_level):
+tsc,redo_NMF, stimulus_on_time, stimulus_off_time, time_baseline,colors_NMF,max_iterations, tolerence_level,remake_colormap):
     
     Stimulus_Directories = [f for f in os.listdir(Exp_Folder) if os.path.isdir(os.path.join(Exp_Folder, f)) and f.find('Figures')<0]            
     for ii in xrange(0, np.size(Stimulus_Directories, axis = 0)):
@@ -82,11 +82,11 @@ tsc,redo_NMF, stimulus_on_time, stimulus_off_time, time_baseline,colors_NMF,max_
             name_for_saving_files = Stimulus_Directories[ii] + '_'+ filename_save_prefix+'_eachodor'
             run_NMF_thunder(Working_Directory, name_for_saving_figures, name_for_saving_files, redo_NMF, data_filtered,\
             data_background, NMF_components, num_NMF_colors, color_map, flag,\
-            stimulus_on_time, stimulus_off_time,colors_NMF,max_iterations, tolerence_level)
+            stimulus_on_time, stimulus_off_time,colors_NMF,max_iterations, tolerence_level,remake_colormap)
             
     
 def run_analysis_allodor(Exp_Folder, filename_save_prefix, NMF_components, num_NMF_colors, color_map,\
- tsc,redo_NMF, stimulus_on_time, stimulus_off_time, time_baseline, colors_NMF,max_iterations, tolerence_level):
+ tsc,redo_NMF, stimulus_on_time, stimulus_off_time, time_baseline, colors_NMF,max_iterations, tolerence_level,remake_colormap):
     
     Working_Directory = Exp_Folder
         
@@ -107,11 +107,11 @@ def run_analysis_allodor(Exp_Folder, filename_save_prefix, NMF_components, num_N
         name_for_saving_files = 'All_odors_'+ filename_save_prefix +'_eachodor'
         run_NMF_thunder(Working_Directory, name_for_saving_figures, name_for_saving_files, redo_NMF, data_filtered,\
         data_background, NMF_components, num_NMF_colors, color_map, flag,\
-        stimulus_on_time, stimulus_off_time,colors_NMF,max_iterations, tolerence_level)
+        stimulus_on_time, stimulus_off_time,colors_NMF,max_iterations, tolerence_level,remake_colormap)
 
     
 def run_NMF_thunder(Working_Directory, name_for_saving_figures, name_for_saving_files, redo_NMF, data,data_background,\
-NMF_components, num_NMF_colors, color_map,  flag, stimulus_on_time, stimulus_off_time,colors_NMF,max_iterations, tolerence_level):
+NMF_components, num_NMF_colors, color_map,  flag, stimulus_on_time, stimulus_off_time,colors_NMF,max_iterations, tolerence_level,remake_colormap):
     
     
     ### If NMF result files exists, then dont run any more NMF, just do plotting, 
@@ -156,8 +156,19 @@ NMF_components, num_NMF_colors, color_map,  flag, stimulus_on_time, stimulus_off
         text_file.write("Plotting Using existing pickled parameters....\n")
         with open(Working_Directory+name_for_saving_files+'_NMF_results','rb') as f:
             NMF_components, imgs_NMF,  maps, matched_pixels, unique_clrs = pickle.load(f)
-    
-    
+        
+        img_size_x = np.size(imgs_NMF,1)
+        img_size_y = np.size(imgs_NMF,2)
+        
+        #Run colorization again
+        if remake_colormap == 1:
+            start_time = time.time()
+            print 'Re-Making NMF color maps for all files...in '+ Working_Directory
+            maps, matched_pixels, unique_clrs = make_NMF_maps(data_background,imgs_NMF, img_size_x,\
+            img_size_y, num_NMF_colors, color_map, colors_NMF)
+            print 'Re-Making NMF color maps '+ str(int(time.time()-start_time)) +' seconds' 
+            with open(Working_Directory+name_for_saving_files+'_NMF_results', 'wb') as f:
+                pickle.dump([NMF_components, imgs_NMF, maps, matched_pixels,unique_clrs],f)
 # Plot NMF
     start_time = time.time()
     text_file.write("Plotting NMF in %s \n" % Working_Directory)

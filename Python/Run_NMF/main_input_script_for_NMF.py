@@ -18,9 +18,10 @@ files_to_do_NMF = [0,0,1] #Individual NMF, Each_exp NMF, All_exp NMF
 use_existing_parameters = 0
 
 #Redo NMF - 1
-redo_NMF = 1
+redo_NMF = 0
+remake_colormap = 1
 
-colors_NMF = ['aqua','gold','mediumpurple','hotpink','red',"cornflowerblue", "mediumseagreen"]
+colors_NMF = ['LightYellow','aqua','Orange','Fuchsia','LimeGreen']
 
 #NMF parameters for individual trial NMF
 NMF_components_ind = 5 #Number of NMF components to detect from files
@@ -39,10 +40,10 @@ color_map_eachexp = 'indexed' #Colormap for plotting principle components
 
 
 #NMF parameters for all exp NMF
-NMF_components_allexp = 5 #Number of NMF components to detect from files
+NMF_components_allexp = 4 #Number of NMF components to detect from files
 num_NMF_colors_allexp = 5 #Number of colors on the NMF maps
-max_iterations_allexp = 30
-tolerence_level_allexp = 0.001
+max_iterations_allexp = 15
+tolerence_level_allexp = 0.01
 color_map_allexp= 'indexed' #Colormap for plotting principle components
 
 #Stimulus on and off time
@@ -88,15 +89,15 @@ tsc = ThunderContext.start(appName="thunderNMF")
 
 if files_to_do_NMF[0]== 1:
     run_analysis_individualodors(Exp_Folder, filename_save_prefix,  NMF_components_ind, num_NMF_colors_ind, color_map_ind,\
-    tsc,redo_NMF,  stimulus_on_time, stimulus_off_time, time_baseline,colors_NMF,max_iterations_ind, tolerence_level_ind)
+    tsc,redo_NMF,  stimulus_on_time, stimulus_off_time, time_baseline,colors_NMF,max_iterations_ind, tolerence_level_ind,remake_colormap)
     
 if files_to_do_NMF[1]== 1:
     run_analysis_eachodor(Exp_Folder, filename_save_prefix,  NMF_components_eachexp, num_NMF_colors_eachexp, color_map_eachexp,\
-    tsc,redo_NMF,  stimulus_on_time, stimulus_off_time, time_baseline,colors_NMF, max_iterations_eachexp, tolerence_level_eachexp)
+    tsc,redo_NMF,  stimulus_on_time, stimulus_off_time, time_baseline,colors_NMF, max_iterations_eachexp, tolerence_level_eachexp,remake_colormap)
 
 if files_to_do_NMF[2]== 1:
     run_analysis_allodor(Exp_Folder, filename_save_prefix, NMF_components_allexp, num_NMF_colors_allexp, color_map_allexp,\
-    tsc,redo_NMF,  stimulus_on_time, stimulus_off_time, time_baseline,colors_NMF, max_iterations_allexp, tolerence_level_allexp)
+    tsc,redo_NMF,  stimulus_on_time, stimulus_off_time, time_baseline,colors_NMF, max_iterations_allexp, tolerence_level_allexp,remake_colormap)
     
 ############# Save all imput parameters
 with open(Exp_Folder+filename_save_prefix+'_save_NMF_variables', 'w') as f:

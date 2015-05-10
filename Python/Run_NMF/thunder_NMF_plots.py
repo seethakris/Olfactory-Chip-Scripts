@@ -56,7 +56,7 @@ def plot_NMF_maps(Working_Directory, name_for_saving_figures, name_for_saving_fi
     ########### Plot Boxplot of number of pixels ##################        
     with sns.axes_style("white"):
         fig2 = plt.subplot(222)
-        fig2 = plot_boxplot(fig2, matched_pixels, colors_NMF)
+        fig2 = plot_boxplot(fig2, matched_pixels, colors_NMF[0:np.size(NMF_components,1)])
     
     plt.tight_layout()
     fig2 = plt.gcf()
@@ -67,10 +67,10 @@ def plot_NMF_maps(Working_Directory, name_for_saving_figures, name_for_saving_fi
     if flag == 0:
         plot_colormaps_ind(maps, Working_Directory, name_for_saving_figures, pp)
     elif flag == 1:
-        plot_colormaps_each(maps, Working_Directory, name_for_saving_figures, pp,matched_pixels,colors_NMF)
+        plot_colormaps_each(maps, Working_Directory, name_for_saving_figures, pp,matched_pixels,colors_NMF[0:np.size(NMF_components,1)])
     elif flag == 2:
-        plot_colormaps_all( maps, Working_Directory, pp, matched_pixels, colors_NMF)
-        plot_colormaps_all_z_plane_wise(maps, Working_Directory, pp,matched_pixels, colors_NMF)
+        plot_colormaps_all( maps, Working_Directory, pp, matched_pixels, colors_NMF[0:np.size(NMF_components,1)])
+        plot_colormaps_all_z_plane_wise(maps, Working_Directory, pp,matched_pixels, colors_NMF[0:np.size(NMF_components,1)])
     
 
     pp.close()
