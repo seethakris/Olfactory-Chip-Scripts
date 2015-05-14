@@ -9,7 +9,7 @@ Take user input in this file and call other routines
 
 ## Enter Main Folder containing stimulus folders to create text files
 
-Exp_Folder ='/Users/seetha/Desktop/KCTD/Fish14_KCTDHUC_5dpf/Tiff/Cropped/Registered/Thresholded_OB/Registered_Stimulus/'
+Exp_Folder ='/Users/seetha/Desktop/KCTD/Fish17_KCTDHUC_6dpf/Tiff/Cropped/Registered/Thresholded_OB/Registered_Stimulus/'
 filename_save_prefix = 'ThresholdedOB_T81'
 
 #Rewrite text files. 1- Yes
@@ -31,8 +31,8 @@ time_end = 81
 stimulus_pulse = 1
 
 if stimulus_pulse == 1:
-    stimulus_on_time = [10,30,50,69]
-    stimulus_off_time = [14,34,54,73]
+    stimulus_on_time = [10,31,50,69]
+    stimulus_off_time = [14,35,54,73]
     
 elif stimulus_pulse == 2:
     stimulus_on_time = [10,29,48,67,86,105]
