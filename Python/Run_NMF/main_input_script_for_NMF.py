@@ -8,7 +8,7 @@ Created on Mon Jan 26 17:07:18 2015
 
 
 ## Enter Main Folder containing stimulus folders to create text files
-Exp_Folder ='/Users/seetha/Desktop/KCTD/Fish14_KCTDHUC_5dpf/Tiff/Cropped/Registered/Thresholded_OB/Registered_Stimulus/'
+Exp_Folder ='/Users/seetha/Desktop/KCTD/Fish17_KCTDHUC_6dpf/Tiff/Cropped/Registered/Thresholded_OB/Registered_Stimulus/'
 filename_save_prefix = 'ThresholdedOB_T81'
 
 #Which files to do NMF on
@@ -21,7 +21,7 @@ use_existing_parameters = 0
 redo_NMF = 0
 remake_colormap = 1
 
-colors_NMF = ['LightYellow','aqua','Orange','Fuchsia','LimeGreen']
+colors_NMF = ['Yellow','aqua','Orange','Fuchsia','LimeGreen']
 
 #NMF parameters for individual trial NMF
 NMF_components_ind = 5 #Number of NMF components to detect from files
@@ -40,7 +40,7 @@ color_map_eachexp = 'indexed' #Colormap for plotting principle components
 
 
 #NMF parameters for all exp NMF
-NMF_components_allexp = 4 #Number of NMF components to detect from files
+NMF_components_allexp = 5 #Number of NMF components to detect from files
 num_NMF_colors_allexp = 5 #Number of colors on the NMF maps
 max_iterations_allexp = 15
 tolerence_level_allexp = 0.01
@@ -54,8 +54,8 @@ if stimulus_pulse == 1:
 
     
 elif stimulus_pulse == 2:
-    stimulus_on_time = [10,29,48,67,86,105]
-    stimulus_off_time = [13,32,51,70,89,108]
+    stimulus_on_time = [10,28,47,65,84,101]
+    stimulus_off_time = [13,31,52,68,87,104]
 
 ## How long is the baseline?
 time_baseline = 10
