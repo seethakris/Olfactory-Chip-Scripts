@@ -5,7 +5,7 @@ Postprocessing to find glomeruli
 @author: seetha
 """
 from numpy import zeros, size, corrcoef,all, append, array, where, logical_and, less,\
-argmin, greater, isnan, squeeze, mean, int, float16, hstack,tile, reshape, repeat
+argmin, greater, isnan, squeeze, mean, int, float16, hstack,tile, reshape, repeat, argmax
 
 import pickle
 import matplotlib.pyplot as plt
@@ -24,21 +24,34 @@ Label_Odor_reverse = {1:'GCDA100NM',2:'GCDA10UM', 3:'GCDA1MM'}
 ######################### Inputs ######################################
 ## Enter Main Folder containing stimulus folders to create text files
 
-Exp_Folder ='/Users/seetha/Desktop/KCTD/Fish14_KCTDHUC_5dpf/Tiff/Cropped/Registered/Thresholded_OB/Registered_Stimulus/'
-filename_save_prefix = 'ThresholdedOB_T81'
-filename_save_prefix_forkmeanswithPCA = 'ThresholdedOB_1and2PC_T81'
+Exp_Folder ='/Users/seetha/Desktop/KCTD/Fish25_KCTDHUC_9dpf/Tiff/Cropped/Registered/Thresholded_OB/Registered_Stimulus/'
+filename_save_prefix_forkmeanswithPCA = 'ThresholdedOB_1and2PC_T129'
 Result_Directory = '/Users/seetha/Desktop/KCTD/'
 
 #Stimulus on and off time
-stimulus_pulse = 1
+stimulus_pulse = 4
 if stimulus_pulse == 1:
-    stimulus_on_time = [10,31,50,69]
-    stimulus_off_time = [14,35,54,73]
+    stimulus_on_time = [10,29,49,68]
+    stimulus_off_time = [14,33,53,72]
 
     
 elif stimulus_pulse == 2:
-    stimulus_on_time = [10,29,48,67,86,105]
-    stimulus_off_time = [13,32,51,70,89,108]
+    stimulus_on_time = [10,28,47,65,84,101]
+    stimulus_off_time = [13,31,52,68,87,104]
+
+elif stimulus_pulse == 3: #Fish 21 onwards
+    stimulus_on_time = [10,29,48,66,85,103]
+    stimulus_off_time = [13,32,53,69,88,106]
+    color_mat = ['#00FFFF','#0000A0','#800080','#FF00FF', '#800000','#A52A2A']
+
+elif stimulus_pulse == 4: #Fish 23 onwards
+    stimulus_on_time = [10,28,46,65,83,102]
+    stimulus_off_time = [13,31,51,70,86,105]
+    color_mat = ['#00FFFF','#0000A0','#800080','#FF00FF', '#800000','#A52A2A']
+elif stimulus_pulse == 5: #Only Fish 24 alone
+    stimulus_on_time = [10,29,46,66,84,104]
+    stimulus_off_time = [13,32,51,69,87,107]
+    color_mat = ['#00FFFF','#0000A0','#800080','#FF00FF', '#800000','#A52A2A']
 
 #Create may directoriess
 Save_Directory = Result_Directory+'Classified_Results'+filesep
@@ -58,7 +71,7 @@ sns.set_context("poster")
 
 
 #######################################################################
-def Main_function(Exp_Folder, name_file, filename_save_prefix, filename_save_prefix_forkmeanswithPCA, stimulus_on_time, stimulus_off_time):
+def Main_function(Exp_Folder, name_file, filename_save_prefix_forkmeanswithPCA, stimulus_on_time, stimulus_off_time):
     #For kmeans
     name_for_saving_files_kmeans = 'All_odors_'+ filename_save_prefix_forkmeanswithPCA+'_eachodor'
     
@@ -84,11 +97,26 @@ def Main_function(Exp_Folder, name_file, filename_save_prefix, filename_save_pre
     Duration_OFF =  get_duration_for_OFF(Off_clusters_index, kmeans_clusters_updated, stimulus_on_time, stimulus_off_time)
       
     ##Sort matched pixel matrix by rgb color for the clusters
-    newclrs_rgb_ON = squeeze(newclrs_rgb.colors[On_clusters_index]).tolist()
-    Num_pixels_ON = get_pixels_ON(matched_pixels_kmeans, newclrs_rgb_ON, unique_clrs_kmeans.tolist())
-    newclrs_rgb_OFF = squeeze(newclrs_rgb.colors[Off_clusters_index]).tolist()    
-    Num_pixels_OFF = get_pixels_OFF(matched_pixels_kmeans,newclrs_rgb_OFF, unique_clrs_kmeans.tolist())
+    if size(On_clusters_index,1)>1:
+        newclrs_rgb_ON = squeeze(newclrs_rgb.colors[On_clusters_index]).tolist()
+        Num_pixels_ON = get_pixels_ON(matched_pixels_kmeans, newclrs_rgb_ON, unique_clrs_kmeans.tolist())
+    elif size(On_clusters_index,1) == 1:
+        newclrs_rgb_ON = newclrs_rgb.colors[On_clusters_index].tolist()
+        newclrs_rgb_ON = [j for i in newclrs_rgb_ON for j in i]
+        Num_pixels_ON = get_pixels_ON(matched_pixels_kmeans, newclrs_rgb_ON, unique_clrs_kmeans.tolist())
+    else: 
+        Num_pixels_ON = []
     
+    if size(Off_clusters_index,1)>1:    
+        newclrs_rgb_OFF = squeeze(newclrs_rgb.colors[Off_clusters_index]).tolist()    
+        Num_pixels_OFF = get_pixels_OFF(matched_pixels_kmeans,newclrs_rgb_OFF, unique_clrs_kmeans.tolist())
+    elif size(Off_clusters_index,1) == 1:
+        newclrs_rgb_OFF = newclrs_rgb.colors[Off_clusters_index].tolist()    
+        newclrs_rgb_OFF = [j for i in newclrs_rgb_OFF for j in i]
+
+        Num_pixels_OFF = get_pixels_OFF(matched_pixels_kmeans,newclrs_rgb_OFF, unique_clrs_kmeans.tolist())
+    else:
+        Num_pixels_OFF = []
     ## Accumalate data for all fish
     all_df, df_duration, df_pixels,df_for_plotting = save_data(Exp_Folder, Result_Directory, name_file, Duration_ON, Duration_OFF, Num_pixels_ON, Num_pixels_OFF)    
     all_df.to_pickle(Save_DataFrames_Directory+'all_df')
@@ -130,18 +158,22 @@ def save_data(Working_Directory, Result_Directory, name_file, Duration_ON, Durat
         Stimulus_Type.append(str(count+1)+'OFF')   
         Stimulus_Index.append(count)
         count=count+1
+    
+    ## For fish 23, change OFF to ON and save
+#    Stimulus_Type[2] = '3ON'
         
     #Save matched_pixels 
     Name_stimulus = get_list_of_stimulus_name(Working_Directory)
     Label_plane, Label_stimulus = label_stimulus(Name_stimulus,Stimulus_Type)
     Stim_type_all = repeat(Stimulus_Type, size(Matched_Pixels,1))
     Matched_Pixels_all = reshape(Matched_Pixels, (size(Matched_Pixels)))
+    Name_stimulus_all = tile(Name_stimulus, size(Matched_Pixels,0))
     # Some data frames
     df1 = DataFrame({'Stimulus_Type':Stimulus_Type,'TDuration':Duration}) #Only duration
     df2 = DataFrame(index=Stimulus_Index, columns=Name_stimulus) # pixels to concatenate with duration
     df3 = DataFrame(index=Stimulus_Type, columns=Name_stimulus) #pixels tandalone
     df4 = DataFrame({'Stimulus_Type':Stim_type_all, 'Pixels':Matched_Pixels_all,\
-    'Label_plane':Label_plane, 'Label_stimulus':Label_stimulus}) #label pixels with stimulus and z plane
+    'Label_plane':Label_plane, 'Label_stimulus':Label_stimulus, 'Original_Stim':Name_stimulus_all}) #label pixels with stimulus and z plane
     df4["Stimulus"] = df4.Label_stimulus.map(Label_Odor_reverse)
     
     for ii in xrange(0,size(Stimulus_Index)):
@@ -211,13 +243,17 @@ def get_duration_for_ON(On_clusters_index, kmeans_clusters_updated, stimulus_on_
     for ii in xrange(0,size(kmeans_clusters_ON,1)):
         for jj in xrange(0,size(stimulus_on_time)-1):
             A1 = kmeans_clusters_ON[stimulus_on_time[jj]:stimulus_off_time[jj+1],ii]
+            offset_A1 = A1[stimulus_off_time[jj]+3-stimulus_on_time[jj]:]
             #Find minima
-            minimum_pts = argrelextrema(A1, less)
-            if (A1[minimum_pts] < A1[0]).any():
-                Duration[ii,jj] = minimum_pts[0][where(logical_and(A1[minimum_pts] < A1[0],\
-                minimum_pts[0]>(stimulus_off_time[jj]+3-stimulus_on_time[jj])))[0][0]]
+            minimum_pts = argrelextrema(offset_A1, less)
+            if size(minimum_pts)==0:
+                    print ii, jj
+                    Duration[ii,jj] = argmin(offset_A1)+ stimulus_off_time[jj]+3-stimulus_on_time[jj]
+            elif (offset_A1[minimum_pts] < A1[0]).any():               
+                offset_duration = minimum_pts[0][where(offset_A1[minimum_pts] < A1[0])[0][0]]
+                Duration[ii,jj] = offset_duration + stimulus_off_time[jj]+3-stimulus_on_time[jj]
             else:
-                Duration[ii,jj] = minimum_pts[0][argmin(A1[minimum_pts])]
+                Duration[ii,jj] = minimum_pts[0][argmin(offset_A1[minimum_pts])] + stimulus_off_time[jj]+3-stimulus_on_time[jj]
             
     return Duration
     
@@ -230,13 +266,17 @@ def get_duration_for_OFF(Off_clusters_index, kmeans_clusters_updated, stimulus_o
     for ii in xrange(0,size(kmeans_clusters_OFF,1)):
         for jj in xrange(0,size(stimulus_on_time)-1):
             A1 = kmeans_clusters_OFF[stimulus_on_time[jj]:stimulus_off_time[jj+1],ii]
+            offset_A1 = A1[stimulus_off_time[jj]+3-stimulus_on_time[jj]:]
+            print ii, jj
             #Find maxima
-            maximum_pts = argrelextrema(A1, greater)
-            if (A1[maximum_pts] > A1[0]).any():
-                Duration[ii,jj] = maximum_pts[0][where(logical_and(A1[maximum_pts] > A1[0],\
-                maximum_pts[0]>(stimulus_off_time[jj]+3-stimulus_on_time[jj])))[0][0]]
+            maximum_pts = argrelextrema(offset_A1, greater)
+            if size(maximum_pts)==0:
+                Duration[ii,jj] = argmax(offset_A1)+ stimulus_off_time[jj]+3-stimulus_on_time[jj]
+            elif (A1[maximum_pts] > A1[0]).any():
+                offset_duration = maximum_pts[0][where(offset_A1[maximum_pts] > A1[0])[0][0]]
+                Duration[ii,jj] = offset_duration + stimulus_off_time[jj]+3-stimulus_on_time[jj]
             else:
-                Duration[ii,jj] =  maximum_pts[0][where(maximum_pts[0]>(stimulus_off_time[jj]+3-stimulus_on_time[jj]))[0][0]]
+                Duration[ii,jj] =  maximum_pts[0][argmax(offset_A1[maximum_pts])] + stimulus_off_time[jj]+3-stimulus_on_time[jj]
     
     return Duration
     
@@ -309,7 +349,7 @@ def raw_data_heatmaps(kmeans, df_pixels,df_for_plotting):
     #Historgram
     hist_ax = fig1.add_subplot(gs[:3,:3])
     pixels = df_pixels.sum(axis=0)
-    hist_ax.bar(range(12), pixels, 1, ec="w", lw=2, color=".3")
+    hist_ax.bar(range(size(df_pixels,1)), pixels, 1, ec="w", lw=2, color=".3")
     hist_ax.set(xticks=[], ylabel="pixels")
     
     ## Plot mean number of pixels
