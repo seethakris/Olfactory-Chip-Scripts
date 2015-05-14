@@ -18,7 +18,7 @@ from thunder_kmeans_plots import plot_kmeans_maps
 
 ## kmeans on individual odors
 def run_analysis_individualodors(Exp_Folder, filename_save_prefix, filename_save_prefix_forkmeanswithPCA, kmeans_clusters, \
-    stimulus_on_time, stimulus_off_time, tsc, redo_kmeans,time_baseline,redo_kmeans_colormap):
+    stimulus_on_time, stimulus_off_time, tsc, redo_kmeans,time_baseline,redo_kmeans_colormap,ignore_clusters):
 
 
     Stimulus_Directories = [f for f in os.listdir(Exp_Folder) if os.path.isdir(os.path.join(Exp_Folder, f)) and f.find('Figures')<0 and f.find('DataFrames')<0]
@@ -52,11 +52,11 @@ def run_analysis_individualodors(Exp_Folder, filename_save_prefix, filename_save
                 
                 flag = 0
                 run_kmeans_thunder(Working_Directory, name_for_saving_figures, name_for_saving_files_kmeans, redo_kmeans, data_filtered,\
-                data_background,kmeans_clusters, stimulus_on_time, stimulus_off_time,flag,redo_kmeans_colormap)
+                data_background,kmeans_clusters, stimulus_on_time, stimulus_off_time,flag,redo_kmeans_colormap,ignore_clusters)
                 
     
 def run_analysis_eachodor(Exp_Folder, filename_save_prefix,filename_save_prefix_forkmeanswithPCA, kmeans_clusters, \
-    stimulus_on_time, stimulus_off_time, tsc, redo_kmeans,time_baseline,redo_kmeans_colormap):
+    stimulus_on_time, stimulus_off_time, tsc, redo_kmeans,time_baseline,redo_kmeans_colormap,ignore_clusters):
     
     Stimulus_Directories = [f for f in os.listdir(Exp_Folder) if os.path.isdir(os.path.join(Exp_Folder, f)) and f.find('Figures')<0 and f.find('DataFrames')<0]            
     for ii in xrange(0, np.size(Stimulus_Directories, axis = 0)):
@@ -82,11 +82,11 @@ def run_analysis_eachodor(Exp_Folder, filename_save_prefix,filename_save_prefix_
                 
             flag = 1
             run_kmeans_thunder(Working_Directory, name_for_saving_figures, name_for_saving_files_kmeans, redo_kmeans, data_filtered,\
-            data_background, kmeans_clusters,stimulus_on_time, stimulus_off_time, flag,redo_kmeans_colormap)
+            data_background, kmeans_clusters,stimulus_on_time, stimulus_off_time, flag,redo_kmeans_colormap,ignore_clusters)
             
     
 def run_analysis_allodor(Exp_Folder, filename_save_prefix, filename_save_prefix_forkmeanswithPCA, kmeans_clusters, \
-    stimulus_on_time, stimulus_off_time, tsc, redo_kmeans,time_baseline,redo_kmeans_colormap):
+    stimulus_on_time, stimulus_off_time, tsc, redo_kmeans,time_baseline,redo_kmeans_colormap,ignore_clusters):
     
     Working_Directory = Exp_Folder
 
@@ -112,11 +112,11 @@ def run_analysis_allodor(Exp_Folder, filename_save_prefix, filename_save_prefix_
         name_for_saving_figures = Working_Directory
         flag = 2
         run_kmeans_thunder(Working_Directory, name_for_saving_figures, name_for_saving_files_kmeans, redo_kmeans, data_filtered,\
-        data_background, kmeans_clusters, stimulus_on_time, stimulus_off_time, flag,redo_kmeans_colormap)
+        data_background, kmeans_clusters, stimulus_on_time, stimulus_off_time, flag,redo_kmeans_colormap,ignore_clusters)
 
     
 def run_kmeans_thunder(Working_Directory, name_for_saving_figures, name_for_saving_files, redo_kmeans, data,data_background,\
-kmeans_clusters, stimulus_on_time, stimulus_off_time, flag,redo_kmeans_colormap):
+kmeans_clusters, stimulus_on_time, stimulus_off_time, flag,redo_kmeans_colormap,ignore_clusters):
     
     
     ### If kmeans result files exists, then dont run any more kmeans, just do plotting, 
@@ -140,7 +140,7 @@ kmeans_clusters, stimulus_on_time, stimulus_off_time, flag,redo_kmeans_colormap)
         
         img_size_x = np.size(img_sim,1)
         img_size_y = np.size(img_sim,2)
-        brainmap, unique_clrs, newclrs_rgb, newclrs_brewer, matched_pixels, kmeans_clusters_updated = make_kmeans_maps(data_background, kmeans_model.centers.T, img_labels, img_sim, img_size_x, img_size_y)
+        brainmap, unique_clrs, newclrs_rgb, newclrs_brewer, matched_pixels, kmeans_clusters_updated = make_kmeans_maps(data_background, kmeans_model.centers.T, img_labels, img_sim, img_size_x, img_size_y,ignore_clusters)
         
         print 'Making kmeans color maps '+ str(int(time.time()-start_time)) +' seconds' 
         text_file.write("Making kmeans color maps took %s seconds \n" %  str(int(time.time()-start_time)))
@@ -157,13 +157,14 @@ kmeans_clusters, stimulus_on_time, stimulus_off_time, flag,redo_kmeans_colormap)
         text_file.write("Plotting Using existing pickled parameters....\n")
         with open(Working_Directory+name_for_saving_files+'_kmeans_results','rb') as f:
             kmeans_clusters,kmeans_clusters_updated, img_sim, img_labels, brainmap, unique_clrs, newclrs_rgb, newclrs_brewer, matched_pixels = pickle.load(f)
+        
         if redo_kmeans_colormap == 1:
             start_time = time.time()
             img_size_x = np.size(img_sim,1)
             img_size_y = np.size(img_sim,2)            
             
             print 'Re-Making kmeans color maps for all files...in '+ Working_Directory
-            brainmap, unique_clrs, newclrs_rgb, newclrs_brewer, matched_pixels, kmeans_clusters_updated = make_kmeans_maps(data_background,kmeans_clusters, img_labels, img_sim, img_size_x, img_size_y)
+            brainmap, unique_clrs, newclrs_rgb, newclrs_brewer, matched_pixels, kmeans_clusters_updated = make_kmeans_maps(data_background,kmeans_clusters, img_labels, img_sim, img_size_x, img_size_y,ignore_clusters)
                         
             print 'Re-Making kmeans color maps '+ str(int(time.time()-start_time)) +' seconds' 
             #Resave            

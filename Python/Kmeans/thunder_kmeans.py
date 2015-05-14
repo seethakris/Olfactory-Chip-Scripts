@@ -12,6 +12,9 @@ import numpy as np
 from thunder import KMeans
 from thunder import Colorize
 from copy import copy
+import seaborn as sns
+from matplotlib.colors import ListedColormap
+import palettable
 
 def run_kmeans(data,kmeans_clusters):
     
@@ -32,21 +35,29 @@ def run_kmeans(data,kmeans_clusters):
     return model, img_sim, img_labels
     
 #Make maps and scatter plots of the pca scores with colormaps for plotting 
-def make_kmeans_maps(data, kmeans_cluster_centers, img_labels, img_sim, img_size_x, img_size_y):
+def make_kmeans_maps(data, kmeans_cluster_centers, img_labels, img_sim, img_size_x, img_size_y,ignore_clusters):
     
     reference = data.seriesMean().pack()
     
     #Only plot those clusters where the standard deviation is greater than 0.1 - thus getting rid of noisy clusters
+    
     interesting_clusters = np.array(np.where(np.logical_and(np.std(kmeans_cluster_centers,0)>0.0001,\
     np.max(kmeans_cluster_centers,0)>0.00001)))
 
-    
-    newclrs_rgb, newclrs_brewer = Colorize.optimize(kmeans_cluster_centers.T, asCmap=True)
+    if ignore_clusters !=0:
+        for ii in ignore_clusters:
+            index = np.where(np.squeeze(interesting_clusters)==ii)[0]
+            interesting_clusters = np.delete(interesting_clusters,index)
+#    newclrs_rgb, newclrs_brewer = Colorize.optimize(kmeans_cluster_centers.T, asCmap=True)
     
     #Brewer colors
+    string_cmap = 'Set1_'+str(np.size(kmeans_cluster_centers,1))
+    newclrs_brewer = eval('palettable.colorbrewer.qualitative.' + string_cmap +'.mpl_colors')
+    newclrs_brewer = ListedColormap(newclrs_brewer, name='from_list')
     newclrs_updated_brewer =  update_colors(newclrs_brewer, interesting_clusters)
     
     #RGB colors
+    newclrs_rgb = ListedColormap(sns.color_palette("bright", np.size(kmeans_cluster_centers,1)), name='from_list')   
     newclrs_updated_rgb =  update_colors(newclrs_rgb, interesting_clusters)
     newclrs_updated_rgb.colors = np.round(newclrs_updated_rgb.colors)
      
