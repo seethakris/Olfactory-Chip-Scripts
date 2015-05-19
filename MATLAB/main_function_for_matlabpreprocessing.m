@@ -7,7 +7,7 @@ function main_function_for_matlabpreprocessing
 
 %User imput
 %Get main directory and sort subfolders by order of fish number
-Main_Directory_Name = '~/Desktop/KCTD/';
+Main_Directory_Name = '~/Desktop/HUC-KR15/';
 
 
 subfolders = dir(Main_Directory_Name);
@@ -17,7 +17,7 @@ foldernames = foldernames(1,:);
 [sorted_foldernames, ~] = sort(foldernames);
 
 
-for ii = 7:7 %length(sorted_foldernames)
+for ii = 11:11%length(sorted_foldernames)
     if  ~strcmpi(sorted_foldernames{ii}, '.') && ~strcmpi(sorted_foldernames{ii}, '..')
         Directory_Name = [Main_Directory_Name, sorted_foldernames{ii}, filesep];
         
@@ -30,12 +30,12 @@ for ii = 7:7 %length(sorted_foldernames)
         %%2. Crop images if user requires
         disp(['Cropping images....for ', Directory_Name,'..Require User Input'])
         Tiff_Folder = [Directory_Name,'Tiff/'];
-%         crop_pixel_outsideOB(Tiff_Folder)
+        crop_pixel_outsideOB(Tiff_Folder)
         
         % 3. Register images
         disp(['Registering images....for ', Directory_Name])
         Cropped_Folder = [Directory_Name, 'Tiff/Cropped/'];
-%         image_register(Cropped_Folder)
+        image_register(Cropped_Folder)
         
         % 4. Threshold OB
         disp(['Sorting sitmulus folders....for ', Directory_Name])

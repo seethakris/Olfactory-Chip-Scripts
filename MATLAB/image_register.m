@@ -71,7 +71,7 @@ for ff = 1:length(files_present)
                 yoffa = yoff;
             end
             
-            if abs(xoff)>=20 || abs(yoff)>=20
+            if abs(xoff)>=25 || abs(yoff)>=25
                 xoff=0;
                 yoff=0;
             end

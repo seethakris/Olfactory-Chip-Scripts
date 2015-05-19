@@ -181,7 +181,7 @@ boundary1 = boundary(idx, :);
 count = 1;
 idx1 = [];
 for ii = 1:length(boundary1)
-    if (boundary1(ii,1)<100 || (boundary1(ii,2)<100 || boundary1(ii,2)>250))==1
+    if (boundary1(ii,1)<100 || (boundary1(ii,2)<100 || boundary1(ii,2)>300))==1
         idx1(count) = ii;
         count = count+1;
     end
